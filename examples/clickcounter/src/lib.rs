@@ -12,9 +12,6 @@ struct AppData {
 
 pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
 
-pub struct InitFn(fn());
-inventory::collect!(InitFn);
-
 #[callback("incrementCounter")]
 pub fn increment_counter() {
     let mut app_data = APP_DATA.write().unwrap();
@@ -55,12 +52,6 @@ fn update_counter_display(app_data: &AppData) {
 
     if result.is_err() {
         log!("Failed to set inner HTML for '#click-counter'.");
-    }
-}
-
-pub fn init_callbacks() {
-    for init in inventory::iter::<InitFn> {
-        (init.0)();
     }
 }
 

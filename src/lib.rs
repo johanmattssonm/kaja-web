@@ -2,6 +2,9 @@ use gloo::console::log;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement, NodeList};
 
+pub struct InitFn(pub fn());
+inventory::collect!(InitFn);
+
 #[derive(Debug, Clone, Copy)]
 pub struct Error;
 
@@ -21,6 +24,12 @@ pub struct CallbackRegistration {
 unsafe impl Sync for CallbackRegistration {}
 
 inventory::collect!(CallbackRegistration);
+
+pub fn init_callbacks() {
+    for init in inventory::iter::<InitFn> {
+        (init.0)();
+    }
+}
 
 impl App {
     pub fn new() -> Self {
