@@ -1,0 +1,125 @@
+use gloo::console::log;
+use wasm_bindgen::JsCast;
+use web_sys::{Element, HtmlElement, NodeList};
+
+#[derive(Debug, Clone, Copy)]
+pub struct Error;
+
+type Result<T> = std::result::Result<T, Error>;
+
+/// Queries the document for a single element matching the given selector.
+/// Returns `None` if no element is found. Returns first matching element if multiple are found.
+pub fn get_element(selector: &str) -> Option<HtmlElement> {
+    let window = web_sys::window().ok_or(Error).ok()?;
+    let document = window.document().ok_or(Error).ok()?;
+    let elements = document
+        .query_selector_all(selector)
+        .map_err(|_| Error)
+        .ok()?;
+
+    if elements.length() == 0 {
+        return None;
+    }
+
+    if elements.length() > 1 {
+        log!(
+            "Expecting a single element, found {} instead.",
+            elements.length()
+        );
+    }
+
+    if let Some(node) = elements.item(0) {
+        if let Ok(element) = node.dyn_into::<HtmlElement>() {
+            return Some(element);
+        }
+    }
+
+    None
+}
+
+pub fn node_list_to_vec(list: NodeList) -> Vec<HtmlElement> {
+    (0..list.length())
+        .filter_map(|i| list.item(i))
+        .filter_map(|node| node.dyn_into::<HtmlElement>().ok())
+        .collect()
+}
+
+/// Queries the document for all elements matching the given selector.
+pub fn get_elements(selector: &str) -> Vec<HtmlElement> {
+    let window = web_sys::window();
+
+    if window.is_none() {
+        return Vec::new();
+    }
+
+    let document = window.unwrap().document();
+
+    if document.is_none() {
+        return Vec::new();
+    }
+
+    let elements = document.unwrap().query_selector_all(selector);
+
+    if elements.is_err() {
+        log!("Failed to query selector all: {:?}", selector);
+        return Vec::new();
+    }
+
+    return node_list_to_vec(elements.unwrap());
+}
+
+/// Sets the inner HTML of the first element matching the given selector.
+/// Returns an error if no element is found.
+pub fn inner_html(selector: &str, html: &str) -> Result<()> {
+    let window = web_sys::window().ok_or(Error)?;
+    let document = window.document().ok_or(Error)?;
+
+    let elements = document.query_selector_all(selector).map_err(|_| Error)?;
+
+    if elements.length() == 0 {
+        return Err(Error);
+    }
+
+    for i in 0..elements.length() {
+        if let Some(node) = elements.item(i) {
+            if let Ok(element) = node.dyn_into::<Element>() {
+                element.set_inner_html(html);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Sets the inner text of the first element matching the given selector.
+/// Returns an error if no element is found.
+pub fn inner_text(selector: &str, text: &str) -> Result<()> {
+    let window = web_sys::window().ok_or(Error)?;
+    let document = window.document().ok_or(Error)?;
+
+    let elements = document.query_selector_all(selector).map_err(|_| Error)?;
+
+    if elements.length() == 0 {
+        return Err(Error);
+    }
+
+    for i in 0..elements.length() {
+        if let Some(node) = elements.item(i) {
+            if let Ok(element) = node.dyn_into::<Element>() {
+                element.set_text_content(Some(text));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Sets the inner HTML of the first element matching the given selector, if one exists.
+pub fn try_inner_html(selector: &str, html: &str) {
+    let _ = inner_html(selector, html);
+}
+
+/// Sets the inner text of the first element matching the given selector, if one exists.
+pub fn try_inner_text(selector: &str, text: &str) {
+    let _ = inner_text(selector, text);
+}
