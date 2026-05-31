@@ -19,14 +19,12 @@ fn update_counter_display(app_data: &AppData) {
         <div class="click-counter-display">$count</div>
 
         <button class="click-counter-increment-button"
-            onclick="incrementCounter()"
-        >
+            onclick="incrementCounter()">
             Increment
         </button>
 
         <button class="click-counter-decrement-button"
-            onclick="decrementCounter()"
-        >
+            onclick="decrementCounter()">
             Decrement
         </button>
     }};

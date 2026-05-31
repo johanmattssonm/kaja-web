@@ -124,5 +124,5 @@ button[class^="click-counter-"] {
 }
 
 .click-counter-display {
-    border: solid 10px;
+    border: solid 10px var(--accent-400);
 }
