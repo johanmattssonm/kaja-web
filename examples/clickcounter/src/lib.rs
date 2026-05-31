@@ -38,14 +38,14 @@ fn update_counter_display(app_data: &AppData) {
     }
 }
 
-#[callback("incrementCounter")]
+#[callback(incrementCounter)]
 pub fn increment_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count = app_data.current_count.saturating_add(1);
     update_counter_display(&app_data);
 }
 
-#[callback("decrementCounter")]
+#[callback(decrementCounter)]
 pub fn decrement_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count = app_data.current_count.saturating_sub(1);
