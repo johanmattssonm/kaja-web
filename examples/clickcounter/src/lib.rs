@@ -12,6 +12,9 @@ struct AppData {
 
 pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
 
+pub struct InitFn(fn());
+inventory::collect!(InitFn);
+
 #[callback("incrementCounter")]
 pub fn increment_counter() {
     let mut app_data = APP_DATA.write().unwrap();
@@ -24,13 +27,6 @@ pub fn decrement_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count = app_data.current_count.saturating_sub(1);
     update_counter_display(&app_data);
-}
-
-#[wasm_bindgen(js_name = initCallbacks)]
-pub fn init_callbacks() {
-    log!("Initializing callbacks");
-    increment_counter_register();
-    decrement_counter_register();
 }
 
 fn update_counter_display(app_data: &AppData) {
@@ -62,12 +58,18 @@ fn update_counter_display(app_data: &AppData) {
     }
 }
 
+pub fn init_callbacks() {
+    for init in inventory::iter::<InitFn> {
+        (init.0)();
+    }
+}
+
 #[wasm_bindgen(start)]
 pub fn init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    console_error_panic_hook::set_once();
 
     let mut app_data = APP_DATA.read().unwrap();
     update_counter_display(&app_data);
-
     init_callbacks();
 }

@@ -450,6 +450,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "inventory"
+version = "0.3.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4f0c30c76f2f4ccee3fe55a2435f691ca00c0e4bd87abe4f4a851b1d4dac39b"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "inventory-impl"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -506,7 +515,7 @@ version = "0.1.0"
 dependencies = [
  "gloo",
  "gloo-console",
- "inventory",
+ "inventory 0.1.11",
  "js-sys",
  "kaja-callback-macro",
  "serde",
@@ -521,6 +530,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "gloo",
+ "inventory 0.3.24",
  "js-sys",
  "kaja-callback-macro",
  "kaja-html-macro",
