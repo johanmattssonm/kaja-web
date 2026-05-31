@@ -7,30 +7,13 @@ use std::sync::RwLock;
 use wasm_bindgen::prelude::*;
 
 struct AppData {
-    current_count: usize,
+    current_count: isize,
 }
 
 pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
 
-#[callback("incrementCounter")]
-pub fn increment_counter() {
-    let mut app_data = APP_DATA.write().unwrap();
-    app_data.current_count = app_data.current_count.saturating_add(1);
-    update_counter_display(&app_data);
-}
-
-#[callback("decrementCounter")]
-pub fn decrement_counter() {
-    let mut app_data = APP_DATA.write().unwrap();
-    app_data.current_count = app_data.current_count.saturating_sub(1);
-    update_counter_display(&app_data);
-}
-
 fn update_counter_display(app_data: &AppData) {
-    log!("Updating counter display");
     let count = app_data.current_count;
-
-    log!("Updating counter display: count = {}", count);
 
     let counter = html! {{
         <div class="click-counter-display">$count</div>
@@ -55,6 +38,20 @@ fn update_counter_display(app_data: &AppData) {
     }
 }
 
+#[callback("incrementCounter")]
+pub fn increment_counter() {
+    let mut app_data = APP_DATA.write().unwrap();
+    app_data.current_count = app_data.current_count.saturating_add(1);
+    update_counter_display(&app_data);
+}
+
+#[callback("decrementCounter")]
+pub fn decrement_counter() {
+    let mut app_data = APP_DATA.write().unwrap();
+    app_data.current_count = app_data.current_count.saturating_sub(1);
+    update_counter_display(&app_data);
+}
+
 #[wasm_bindgen(start)]
 pub fn init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -62,5 +59,6 @@ pub fn init() {
 
     let mut app_data = APP_DATA.read().unwrap();
     update_counter_display(&app_data);
+
     init_callbacks();
 }
