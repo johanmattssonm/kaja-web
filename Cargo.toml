@@ -1,12 +1,15 @@
 [package]
 name = "kaja-web"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-gloo = { version = "0.12.0", features = ["console"] }
+gloo = "0.12.0"
+gloo-console = "0.4.0"
+kaja-callback-macro = { version = "0.1.0", path = "../kaja-callback-macro" }
 wasm-bindgen = "0.2.122"
-
-[dependencies.web-sys]
-version = "0.3.91"
-features = ["console", "Window", "Document", "HtmlDocument", "Element", "HtmlElement", "Node", "NodeList"]
+web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList"] }
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.5"
+inventory = "0.1"
+js-sys = "0.3"
