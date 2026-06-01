@@ -57,6 +57,5 @@ pub fn init() {
 
     let mut app_data = APP_DATA.read().unwrap();
     update_counter_display(&app_data);
-
     init_callbacks();
 }
