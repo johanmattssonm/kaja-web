@@ -39,10 +39,10 @@ fn update(app_data: &AppData) {
         </button>
     }};
 
-    let result = inner_html("#quotes", counter.as_str());
+    let result = inner_html("#main-view", counter.as_str());
 
     if result.is_err() {
-        log!("Failed to set inner HTML for '#quotes'.");
+        log!("Failed to set inner HTML for '#main-view'.");
     }
 }
 

@@ -2,8 +2,8 @@ let wasmModule;
 
 async function loadWasm() {
   try {
-    const wasmModule = await import("./clickcounter.js");
-    await wasmModule.default("./clickcounter_bg.wasm");
+    const wasmModule = await import("./main.js");
+    await wasmModule.default("./main_bg.wasm");
 
     return wasmModule;
   } catch (error) {

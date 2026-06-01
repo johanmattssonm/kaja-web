@@ -482,7 +482,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kaja-web-click-counter-example"
+name = "kaja-web-callback-example"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",

@@ -1,5 +1,5 @@
 [package]
-name = "kaja-web-click-counter-example"
+name = "kaja-web-callback-example"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,11 +9,8 @@ crate-type = ["cdylib"]
 [dependencies]
 wasm-bindgen = "0.2.122"
 kaja-web = { path = "../.." }
-
-# No inventory/ctor/callback-macro on wasm example: exports use wasm_bindgen directly
 js-sys = "0.3"
 web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList"] }
-
 gloo = "0.12"
 kaja-html-macro = "1.0.3"
 serde = { version = "1.0.228", features = ["derive"] }
