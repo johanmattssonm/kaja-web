@@ -34,7 +34,7 @@ fn update(app_data: &AppData) {
             Test 2
         </button>
 
-        <button onclick="test3(1, 2)">
+        <button onclick="test3(1, 2, 3)">
             Test 3
         </button>
     }};

@@ -23,3 +23,4 @@ uuid = { version = "1.23.2", features = ["js", "v4"] }
 console_error_panic_hook = "0.1.7"
 kaja-callback-macro = { version = "0.1.0", path = "../../../kaja-callback-macro" }
 inventory = "0.3.24"
+serde-wasm-bindgen = "0.5"
