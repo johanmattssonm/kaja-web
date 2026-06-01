@@ -14,3 +14,7 @@ body {
     justify-content: center;
     padding: 40px 20px;
 }
+
+#main-view {
+    padding: 20px 20px 20px 20px;
+}
