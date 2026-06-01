@@ -1,10 +1,6 @@
 #![cfg(target_arch = "wasm32")]
-use gloo::console::log;
-use kaja_callback_macro::callback;
-use kaja_html_macro::html;
-use kaja_web::*;
+use kaja_web::prelude::*;
 use std::sync::RwLock;
-use wasm_bindgen::prelude::*;
 
 struct AppData {
     current_count: isize,
@@ -57,5 +53,6 @@ pub fn init() {
 
     let mut app_data = APP_DATA.read().unwrap();
     update_counter_display(&app_data);
+
     init_callbacks();
 }

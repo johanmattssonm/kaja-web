@@ -1,11 +1,7 @@
 #![cfg(target_arch = "wasm32")]
-use gloo::console::log;
-use kaja_callback_macro::callback;
-use kaja_html_macro::html;
-use kaja_web::*;
+use kaja_web::prelude::*;
 use serde::Deserialize;
 use std::sync::RwLock;
-use wasm_bindgen::prelude::*;
 
 pub struct AppData {
     current_count: isize,

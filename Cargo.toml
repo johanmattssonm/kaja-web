@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 gloo = "0.12.0"
 gloo-console = "0.4.0"
+kaja-html-macro = "1.0.3"
 kaja-callback-macro = { version = "0.1.0", path = "../kaja-callback-macro" }
 wasm-bindgen = "0.2.122"
 web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList"] }

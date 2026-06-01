@@ -2,13 +2,15 @@ use gloo::console::log;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement, NodeList};
 
+pub mod prelude;
+
 pub struct InitFn(pub fn());
 inventory::collect!(InitFn);
 
 #[derive(Debug, Clone, Copy)]
 pub struct Error;
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct JsCallItem {
     pub name: &'static str,
