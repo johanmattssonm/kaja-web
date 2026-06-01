@@ -1,8 +1,9 @@
 pub use crate::{
-    get_element, get_elements, init_callbacks, inner_html, inner_text, node_list_to_vec,
-    try_inner_html, try_inner_text, App, CallbackRegistration, Error, InitFn, JsCallItem, Result,
+    get_element, get_elements, init_callbacks, inner_html, inner_text, try_inner_html,
+    try_inner_text, CallbackRegistration, Error, InitFn, Result,
 };
 
+pub use gloo::console::error;
 pub use gloo::console::log;
 pub use serde_wasm_bindgen;
 

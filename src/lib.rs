@@ -1,4 +1,4 @@
-use gloo::console::log;
+use gloo_console::error;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement, NodeList};
 
@@ -12,13 +12,6 @@ pub struct Error;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub struct JsCallItem {
-    pub name: &'static str,
-    pub install: fn(),
-}
-
-pub struct App {}
-
 pub struct CallbackRegistration {
     pub register: fn(),
 }
@@ -27,21 +20,30 @@ unsafe impl Sync for CallbackRegistration {}
 
 inventory::collect!(CallbackRegistration);
 
+/// Register callbacks that can be used in JS to run Rust functions in the WASM bundle.
+/// This needs to run when the WASM bundle is loaded.
+///
+/// ```rust
+/// #[wasm_bindgen(start)]
+/// pub fn init() {
+///     init_callbacks();
+/// }
+///
+/// The Rust functions must be marked with the `#[callback]` attribute to be registered.
+/// ```rust
+/// #[callback(test)]
+/// pub fn test() {
+/// }
+/// ```
+///
+/// ```rust
+/// let html = html!{{
+///     <button onclick="test()">Test</button>
+/// }};
+/// ```
 pub fn init_callbacks() {
     for init in inventory::iter::<InitFn> {
         (init.0)();
-    }
-}
-
-impl App {
-    pub fn new() -> Self {
-        App {}
-    }
-
-    pub fn set_callbacks(&self) {
-        for reg in inventory::iter::<CallbackRegistration> {
-            (reg.register)();
-        }
     }
 }
 
@@ -60,7 +62,7 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
     }
 
     if elements.length() > 1 {
-        log!(
+        error!(
             "Expecting a single element, found {} instead.",
             elements.length()
         );
@@ -73,13 +75,6 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
     }
 
     None
-}
-
-pub fn node_list_to_vec(list: NodeList) -> Vec<HtmlElement> {
-    (0..list.length())
-        .filter_map(|i| list.item(i))
-        .filter_map(|node| node.dyn_into::<HtmlElement>().ok())
-        .collect()
 }
 
 /// Queries the document for all elements matching the given selector.
@@ -99,7 +94,7 @@ pub fn get_elements(selector: &str) -> Vec<HtmlElement> {
     let elements = document.unwrap().query_selector_all(selector);
 
     if elements.is_err() {
-        log!("Failed to query selector all: {:?}", selector);
+        error!("Failed to query selector all: {:?}", selector);
         return Vec::new();
     }
 
@@ -160,4 +155,11 @@ pub fn try_inner_html(selector: &str, html: &str) {
 /// Sets the inner text of the first element matching the given selector, if one exists.
 pub fn try_inner_text(selector: &str, text: &str) {
     let _ = inner_text(selector, text);
+}
+
+fn node_list_to_vec(list: NodeList) -> Vec<HtmlElement> {
+    (0..list.length())
+        .filter_map(|i| list.item(i))
+        .filter_map(|node| node.dyn_into::<HtmlElement>().ok())
+        .collect()
 }

@@ -1,22 +1,13 @@
 #![cfg(target_arch = "wasm32")]
 use kaja_web::prelude::*;
 use serde::Deserialize;
-use std::sync::RwLock;
-
-pub struct AppData {
-    current_count: isize,
-}
 
 #[derive(Deserialize)]
 pub struct Test1Data {
     test_parameter: String,
 }
 
-pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
-
-fn update(app_data: &AppData) {
-    let count = app_data.current_count;
-
+fn update() {
     let counter = html! {{
         <button onclick="test0()">
             Test 0
@@ -71,8 +62,6 @@ pub fn init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_error_panic_hook::set_once();
 
-    let mut app_data = APP_DATA.read().unwrap();
-    update(&app_data);
-
+    update();
     init_callbacks();
 }
