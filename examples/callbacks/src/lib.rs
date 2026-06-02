@@ -1,5 +1,6 @@
 use kaja_web::prelude::*;
 use serde::Deserialize;
+use web_sys::KeyboardEvent;
 
 #[derive(Deserialize)]
 pub struct Test1Data {
@@ -27,6 +28,9 @@ fn update() {
         <button onclick="asyncTest('run later');">
             Test Async
         </button>
+
+        <br />
+        <textarea onkeydown="processInput(event)">Key down events?</textarea>
     }};
 
     let result = inner_html("#main-view", counter.as_str());
@@ -76,6 +80,18 @@ pub fn test3(a: u32, b: u32, c: u32) {
 async fn async_test(message: String) {
     log!("Async?: ", &message);
     set_color("black");
+}
+
+#[callback(processInput)]
+fn edit_input(ev: JsValue) {
+    let ev: KeyboardEvent = ev.unchecked_into();
+    let key = ev.key();
+    log!("edit_input: {:?}", key.clone());
+
+    if key == "Tab" {
+        log!("Tab pressed");
+        ev.prevent_default();
+    }
 }
 
 #[wasm_bindgen(start)]
