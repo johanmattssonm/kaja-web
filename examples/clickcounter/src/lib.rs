@@ -1,4 +1,3 @@
-#![cfg(target_arch = "wasm32")]
 use kaja_web::prelude::*;
 use std::sync::RwLock;
 

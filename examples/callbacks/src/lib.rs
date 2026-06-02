@@ -16,12 +16,16 @@ fn update() {
             Test 1
         </button>
 
-        <button onclick="test2({test_parameter: 'just a test'}, 'string_param'">
+        <button onclick="test2({test_parameter: 'just a test'}, 'string_param');">
             Test 2
         </button>
 
         <button onclick="test3(1, 2, 3)">
             Test 3
+        </button>
+
+        <button onclick="asyncTest('run later');">
+            Test Async
         </button>
     }};
 
@@ -66,6 +70,12 @@ pub fn test2(arg0_rust: Test1Data, arg1_rust: String) {
 pub fn test3(a: u32, b: u32, c: u32) {
     log!("test3 {}, {} and {}", a, b, c);
     set_color("pink");
+}
+
+#[callback(asyncTest)]
+async fn async_test(message: String) {
+    log!("Async?: ", &message);
+    set_color("black");
 }
 
 #[wasm_bindgen(start)]
