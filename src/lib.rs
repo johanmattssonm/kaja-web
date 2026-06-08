@@ -1,6 +1,6 @@
 use gloo_console::error;
 use wasm_bindgen::JsCast;
-use web_sys::{Element, HtmlElement, NodeList};
+use web_sys::{window, Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
 
@@ -29,7 +29,7 @@ inventory::collect!(CallbackRegistration);
 ///     init_callbacks();
 /// }
 ///
-/// The Rust functions must be marked with the `#[callback]` attribute to be registered.
+/// The Rust functions is marked with the `#[callback]` attribut.
 /// ```rust
 /// #[callback(test)]
 /// pub fn test() {
@@ -125,7 +125,7 @@ pub fn inner_html(selector: &str, html: &str) -> Result<()> {
 }
 
 /// Sets the inner text of the elements matching the given selector.
-/// Returns an error if no element is found.
+/// Returns an error if no element are found.
 pub fn inner_text(selector: &str, text: &str) -> Result<()> {
     let window = web_sys::window().ok_or(Error)?;
     let document = window.document().ok_or(Error)?;
@@ -147,6 +147,23 @@ pub fn inner_text(selector: &str, text: &str) -> Result<()> {
     Ok(())
 }
 
+/// Get value from input tag
+pub fn get_value(selector: &str) -> Option<String> {
+    let element = get_element(selector)?;
+
+    if let Ok(input) = element.dyn_into::<HtmlInputElement>() {
+        return Some(input.value());
+    }
+
+    None
+}
+
+/// Get value from input tag, or return an empty string if no value is found.
+pub fn try_get_value(selector: &str) -> String {
+    let value = get_value(selector);
+    return value.unwrap_or_default();
+}
+
 /// Sets the inner HTML of the first element matching the given selector, if one exists.
 pub fn try_inner_html(selector: &str, html: &str) {
     let _ = inner_html(selector, html);
@@ -162,4 +179,26 @@ fn node_list_to_vec(list: NodeList) -> Vec<HtmlElement> {
         .filter_map(|i| list.item(i))
         .filter_map(|node| node.dyn_into::<HtmlElement>().ok())
         .collect()
+}
+
+/// Get a value set in any cookie.
+pub fn get_cookie_value(name: &str) -> Option<String> {
+    let window = web_sys::window().ok_or(Error).ok()?;
+    let document = window.document().ok_or(Error).ok()?;
+
+    let cookies = if let Ok(html_doc) = document.dyn_into::<HtmlDocument>() {
+        html_doc.cookie().unwrap_or_default()
+    } else {
+        String::new()
+    };
+
+    for cookie in cookies.split(';') {
+        let cookie = cookie.trim();
+        if let Some((key, value)) = cookie.split_once('=') {
+            if key == name {
+                return Some(value.to_string());
+            }
+        }
+    }
+    None
 }

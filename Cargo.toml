@@ -9,7 +9,7 @@ gloo-console = "0.4.0"
 kaja-html-macro = "1.0.3"
 kaja-callback-macro = { version = "0.1.0", path = "../kaja-callback-macro" }
 wasm-bindgen = "0.2.122"
-web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList"] }
+web-sys = { version = "0.3.99", features = ["Document", "HtmlDocument", "Element", "HtmlElement", "HtmlInputElement", "NodeList"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.5"
 inventory = "0.3.24"

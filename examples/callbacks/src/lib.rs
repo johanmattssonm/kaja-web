@@ -30,6 +30,7 @@ fn update() {
         </button>
 
         <br />
+        <br />
         <textarea onkeydown="processInput(event)">Key down events?</textarea>
     }};
 
