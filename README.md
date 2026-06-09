@@ -1,4 +1,4 @@
-# kaja-web a Frontend Framework for Web Applications written in Rust
+# Web Framework: kaja-web - for Web Applications written in Rust
 
 The key concept and idea behind the design is that HTML content is managed as
 strings and the code is compiled to WebAssembly. There is no Domain Specific
