@@ -1,6 +1,8 @@
+#![doc = include_str!("../README.md")]
+
 use gloo_console::error;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
+use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
 
@@ -22,23 +24,23 @@ inventory::collect!(CallbackRegistration);
 
 /// Register callbacks that can be used in JS to run Rust functions in the WASM bundle.
 /// This needs to run when the WASM bundle is loaded.
-///
 /// ```rust
 /// #[wasm_bindgen(start)]
 /// pub fn init() {
 ///     init_callbacks();
 /// }
+/// ```
 ///
 /// The Rust functions is marked with the `#[callback]` attribut.
 /// ```rust
-/// #[callback(test)]
-/// pub fn test() {
+/// #[callback(testCallback)]
+/// pub fn test_callback() {
 /// }
 /// ```
 ///
 /// ```rust
 /// let html = html!{{
-///     <button onclick="test()">Test</button>
+///     <button onclick="testCallback()">Test</button>
 /// }};
 /// ```
 pub fn init_callbacks() {

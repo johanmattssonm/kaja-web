@@ -11,35 +11,50 @@ with the browser.
 ## Example:
 ```rust
 use kaja_web::prelude::*;
+use std::sync::RwLock;
+
+struct AppData {
+    current_count: i32,
+}
+
+pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
 
 #[callback(incrementClickCounter)]
 fn increment_click_counter() {
-    // update the click counter here
+    let mut app_data = APP_DATA.write().unwrap();
+    app_data.current_count += 1;
+    update_counter_display(&app_data);
 }
 
-fn main() {
-    // Init callbacks tomake sure functions annotated with `#[callback]`
-    // are available as global functions on the DOM
-    init_callbacks(); 
-
+fn update_counter_display(app_data: &AppData) {
     let content = html! {{
-        <div class="click-count"></div>
+        <div class="click-count">$(app_data.current_count)</div>
         <button onclick="incrementClickCounter()">Click me</button>
     }};
 
     inner_html(".main-content", content);
 }
 
-// This example requres an html file with this content:
-// <div class="main-content"></div>
+fn main() {
+    // Init callbacks to make sure functions annotated with `#[callback]`
+    // are available as global functions on the DOM
+    init_callbacks(); 
+
+    let mut app_data = APP_DATA.write().unwrap();
+    update_counter_display(&app_data);
+}
 ```
 
-For more example see: the crates `kaja-html-macro` and `kaja-callback-macro` or
-look in the examples directory.
+This example requres an html file with this content:
+```html
+<div class="main-content"></div>
+```
+
+See examples/clickcounter for full example.
 
 ## The Macros
-The HTML code is generated using the `kaja_html_macro` crate. The callback
-functions are definedusing the `kaja_callback_macro` crate. Helper functions
+The HTML code is generated using the `kaja-html-macro` crate. The callback
+functions are definedusing the `kaja-callback-macro` crate. Helper functions
 are added in this crate and reexportedfrom the `kaja_web::prelude` module.
 
 ## Author and Contact
