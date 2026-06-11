@@ -1,4 +1,4 @@
-# Web Framework: kaja-web - for Web Applications written in Rust
+# Web Framework: kaja-web – for Web Applications written in Rust
 
 The key concept and idea behind the design is that HTML content is managed as
 strings and the code is compiled to WebAssembly. There is no Domain Specific
@@ -7,6 +7,10 @@ functions in onclick handlers (and also other event handlers).
 
 There are also a number of helper functions available to make it easier to interact
 with the browser.
+
+No state changes triggers re-render automatically, run the update function
+manually when you want to render a component and use `inner_html("#the-id", content)`
+to update the  DOM.
 
 ## Example:
 ```rust
@@ -36,8 +40,6 @@ fn update_counter_display(app_data: &AppData) {
 }
 
 fn main() {
-    // Init callbacks to make sure functions annotated with `#[callback]`
-    // are available as global functions on the DOM
     init_callbacks(); 
 
     let mut app_data = APP_DATA.write().unwrap();
@@ -51,6 +53,36 @@ This example requres an html file with this content:
 ```
 
 See examples/clickcounter for full example.
+
+# Passing Objects from JS Callbacks to Rust WASM
+
+This requires `serde::Deserialize;`.
+
+```rust
+use kaja_web::prelude::*;
+use serde::Deserialize;
+use web_sys::KeyboardEvent;
+
+#[derive(Deserialize)]
+pub struct TestData {
+    test_parameter: String,
+}
+
+fn update_component() {
+    let content = html! {{
+        <button onclick="foo({ test_parameter: 'test' })">Click me</button>
+    }};
+
+    inner_html(".main-content", content);
+}
+
+#[callback(foo)]
+fn foo(data: TestData) {
+    let mut app_data = APP_DATA.write().unwrap();
+    app_data.current_count += 1;
+    update_counter_display(&app_data);
+}
+```
 
 ## The Macros
 The HTML code is generated using the `kaja-html-macro` crate. The callback
