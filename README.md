@@ -1,16 +1,16 @@
-# Web Framework: kaja-web – for Web Applications written in Rust
+# kaja-web – A Framework for Web Applications Written in Rust
 
 The key concept and idea behind the design is that HTML content is managed as
 strings and the code is compiled to WebAssembly. There is no Domain Specific
-Language, just plain Rust with a little bit of glue code that calls the WebAssembly
-functions in onclick handlers (and also other event handlers).
+Language, just plain Rust with a little bit of glue code that calls the
+WebAssembly functions in onclick handlers (and also other event handlers).
 
-There are also a number of helper functions available to make it easier to interact
-with the browser.
+There are also a number of helper functions available to make it easier to
+interact with the browser.
 
-No state changes triggers re-render automatically, run the update function
-manually when you want to render a component and use `inner_html("#the-id", content)`
-to update the  DOM.
+No state changes triggers re-render automatically, run your update function 
+manually when you want to render a component and use 
+`inner_html("#the-id", content)` to update the  DOM.
 
 ## Example:
 ```rust
@@ -42,7 +42,7 @@ fn update_counter_display(app_data: &AppData) {
 fn main() {
     init_callbacks(); 
 
-    let mut app_data = APP_DATA.write().unwrap();
+    let mut app_data = APP_DATA.read().unwrap();
     update_counter_display(&app_data);
 }
 ```
@@ -52,7 +52,7 @@ This example requres an html file with this content:
 <div class="main-content"></div>
 ```
 
-See examples/clickcounter for full example.
+See examples/clickcounter for a full example.
 
 # Passing Objects from JS Callbacks to Rust WASM
 
@@ -61,7 +61,6 @@ This requires `serde::Deserialize;`.
 ```rust
 use kaja_web::prelude::*;
 use serde::Deserialize;
-use web_sys::KeyboardEvent;
 
 #[derive(Deserialize)]
 pub struct TestData {
@@ -78,9 +77,7 @@ fn update_component() {
 
 #[callback(foo)]
 fn foo(data: TestData) {
-    let mut app_data = APP_DATA.write().unwrap();
-    app_data.current_count += 1;
-    update_counter_display(&app_data);
+    log!("test_parameter: {}", data.test_parameter);
 }
 ```
 
@@ -88,6 +85,49 @@ fn foo(data: TestData) {
 The HTML code is generated using the `kaja-html-macro` crate. The callback
 functions are definedusing the `kaja-callback-macro` crate. Helper functions
 are added in this crate and reexportedfrom the `kaja_web::prelude` module.
+
+## Building WASM Packages
+
+```bash
+cargo build
+
+wasm-pack build \
+    --release \
+    --target web \
+    --out-dir pkg \
+    --out-name main \
+    --no-typescript
+
+cp index.html pkg/
+cp loader.js pkg/
+cp styles.css pkg/
+```
+
+## Loading the WASM Package with JavaScript
+
+See examples for complete examples with WebAssembly, html and JavaScript.
+
+```javascript
+let wasmModule;
+
+async function loadWasm() {
+    try {
+        const wasmModule = await import("./main.js");
+        await wasmModule.default("./main_bg.wasm");
+
+        return wasmModule;
+    } catch (error) {
+        console.error("Failed to load WASM module:", error);
+    }
+
+    return null;
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+    wasmModule = await loadWasm();
+});
+```
+
 
 ## Author and Contact
 - Written by Johan Mattsson

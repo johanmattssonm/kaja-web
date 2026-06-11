@@ -22,8 +22,9 @@ unsafe impl Sync for CallbackRegistration {}
 
 inventory::collect!(CallbackRegistration);
 
-/// Register callbacks that can be used in JS to run Rust functions in the WASM bundle.
-/// This needs to run when the WASM bundle is loaded.
+/// Register callbacks that can be used in JS to run Rust functions in the WASM
+/// module. This needs to run when the WASM bundle is loaded.
+///
 /// ```rust
 /// #[wasm_bindgen(start)]
 /// pub fn init() {
@@ -31,7 +32,11 @@ inventory::collect!(CallbackRegistration);
 /// }
 /// ```
 ///
-/// The Rust functions is marked with the `#[callback]` attribut.
+/// The Rust functions as marked with the `#[callback]` attribute in order to
+/// be callable from JS. The JS function in this example has the name
+/// `testCallback`. Note that camel case is used in JS and regular snake case
+/// is used in Rust for the same function.
+///
 /// ```rust
 /// #[callback(testCallback)]
 /// pub fn test_callback() {
@@ -79,7 +84,8 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
     None
 }
 
-/// Queries the document for all elements matching the given selector.
+/// Returns all elements matching the given selector.
+/// For example, `get_elements(".test")` would return all elements with the class `test`.
 pub fn get_elements(selector: &str) -> Vec<HtmlElement> {
     let window = web_sys::window();
 
@@ -149,7 +155,15 @@ pub fn inner_text(selector: &str, text: &str) -> Result<()> {
     Ok(())
 }
 
-/// Get value from input tag
+/// Get value from an input tag.
+/// ```html
+/// <input type="text" id="test" value="test value" />
+/// ```
+///
+/// ```rust
+/// let value = get_value("#test");
+/// assert_eq!(value, Some("test value"));
+/// ```
 pub fn get_value(selector: &str) -> Option<String> {
     let element = get_element(selector)?;
 
@@ -166,12 +180,12 @@ pub fn try_get_value(selector: &str) -> String {
     return value.unwrap_or_default();
 }
 
-/// Sets the inner HTML of the first element matching the given selector, if one exists.
+/// Sets the inner HTML of elements matching the given selector, if at least one exists.
 pub fn try_inner_html(selector: &str, html: &str) {
     let _ = inner_html(selector, html);
 }
 
-/// Sets the inner text of the first element matching the given selector, if one exists.
+/// Sets the inner text of elements matching the given selector, if at least one exists.
 pub fn try_inner_text(selector: &str, text: &str) {
     let _ = inner_text(selector, text);
 }
