@@ -128,7 +128,6 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 ```
 
-
 ## Author and Contact
 - Written by Johan Mattsson
 - johan.mattsson.m@gmail.com

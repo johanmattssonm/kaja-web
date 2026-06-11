@@ -218,3 +218,32 @@ pub fn get_cookie_value(name: &str) -> Option<String> {
     }
     None
 }
+
+/// Set a cookie value
+pub fn set_cookie_value(name: &str, value: &str) -> Result<()> {
+    let window = web_sys::window().ok_or(Error)?;
+    let document = window.document().ok_or(Error)?;
+    const MAX_AGE: u64 = 60 * 60 * 24 * 365 * 10; // in seconds
+
+    if let Ok(html_doc) = document.dyn_into::<HtmlDocument>() {
+        let cookie = format!("{}={}; path=/; Max-Age={}", name, value, MAX_AGE);
+        html_doc.set_cookie(&cookie).map_err(|_| Error)?;
+        return Ok(());
+    }
+
+    Err(Error)
+}
+
+/// Set a session cookie, it will be deleted when the browser is closed.
+pub fn set_session_cookie_value(name: &str, value: &str) -> Result<()> {
+    let window = web_sys::window().ok_or(Error)?;
+    let document = window.document().ok_or(Error)?;
+
+    if let Ok(html_doc) = document.dyn_into::<HtmlDocument>() {
+        let cookie = format!("{}={}; path=/", name, value);
+        html_doc.set_cookie(&cookie).map_err(|_| Error)?;
+        return Ok(());
+    }
+
+    Err(Error)
+}
