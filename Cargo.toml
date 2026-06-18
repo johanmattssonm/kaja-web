@@ -1,7 +1,13 @@
 [package]
 name = "kaja-web"
-version = "0.1.0"
-edition = "2021"
+version = "1.0.0"
+edition = "2024"
+description = "Web framework for Rust targeting the WebAssembly"
+license = "MIT"
+repository = "https://github.com/johanmattssonm/kaja-web"
+readme = "README.md"
+keywords = ["html", "web", "wasm", "rust", "webassembly", "frontend"]
+
 
 [dependencies]
 gloo = "0.12.0"

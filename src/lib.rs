@@ -69,10 +69,12 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
     }
 
     if elements.length() > 1 {
-        error!(
+        let msg = format!(
             "Expecting a single element, found {} instead.",
             elements.length()
         );
+
+        error!(msg);
     }
 
     if let Some(node) = elements.item(0) {
@@ -102,7 +104,8 @@ pub fn get_elements(selector: &str) -> Vec<HtmlElement> {
     let elements = document.unwrap().query_selector_all(selector);
 
     if elements.is_err() {
-        error!("Failed to query selector all: {:?}", selector);
+        let msg = format!("Failed to query selector all: {:?}", selector);
+        error!(msg);
         return Vec::new();
     }
 
@@ -219,7 +222,7 @@ pub fn get_cookie_value(name: &str) -> Option<String> {
     None
 }
 
-/// Set a cookie value
+/// Set a cookie value.
 pub fn set_cookie_value(name: &str, value: &str) -> Result<()> {
     let window = web_sys::window().ok_or(Error)?;
     let document = window.document().ok_or(Error)?;
