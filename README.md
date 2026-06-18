@@ -128,6 +128,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 ```
 
+## Home Page
+https://kajacode.com/kajaweb.html
+
 ## Author and Contact
 - Written by Johan Mattsson
 - johan.mattsson.m@gmail.com
