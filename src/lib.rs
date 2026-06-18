@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Johan Mattsson
+// License: MIT
+
 #![doc = include_str!("../README.md")]
 
 use gloo_console::{error, log};
@@ -251,7 +254,7 @@ pub fn set_session_cookie_value(name: &str, value: &str) -> Result<()> {
     Err(Error)
 }
 
-/// A callback registerd with `#[callback(someFoo)]` can ge retrieved via
+/// A callback registerd with `#[callback(someFoo)]` can be retrieved via
 /// `get_callback("someFoo")`. This is usefull for assigning the callback
 /// to HTML elements without generating an HTML string.
 ///
