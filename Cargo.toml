@@ -13,7 +13,6 @@ keywords = ["html", "web", "wasm", "webassembly", "frontend"]
 gloo = "0.12.0"
 gloo-console = "0.4.0"
 kaja-html-macro = "1.0.3"
-kaja-callback-macro = { version = "0.1.0", path = "../kaja-callback-macro" }
 wasm-bindgen = "0.2.122"
 web-sys = { version = "0.3.99", features = ["Document", "HtmlDocument", "Element", "HtmlElement", "HtmlInputElement", "NodeList"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -21,3 +20,4 @@ serde-wasm-bindgen = "0.5"
 inventory = "0.3.24"
 js-sys = "0.3"
 wasm-bindgen-futures = "0.4.72"
+kaja-callback-macro = "0.1.0"

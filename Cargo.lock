@@ -383,6 +383,8 @@ dependencies = [
 [[package]]
 name = "kaja-callback-macro"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f991f9438ddafefdef1b5fb95a4a60f3bc834b419c27409d8e10a7839c47af8d"
 dependencies = [
  "gloo",
  "proc-macro2",

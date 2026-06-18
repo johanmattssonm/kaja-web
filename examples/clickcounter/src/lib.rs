@@ -31,18 +31,27 @@ fn update_counter_display(app_data: &AppData) {
     }
 }
 
+fn update_count(app_data: &AppData) {
+    let count = app_data.current_count;
+    let result = inner_text(".click-counter-display", count.to_string().as_str());
+
+    if result.is_err() {
+        log!("Failed to set inner HTML for '#click-counter'.");
+    }
+}
+
 #[callback(incrementCounter)]
 pub fn increment_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count = app_data.current_count.saturating_add(1);
-    update_counter_display(&app_data);
+    update_count(&app_data);
 }
 
 #[callback(decrementCounter)]
 pub fn decrement_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count = app_data.current_count.saturating_sub(1);
-    update_counter_display(&app_data);
+    update_count(&app_data);
 }
 
 #[wasm_bindgen(start)]
