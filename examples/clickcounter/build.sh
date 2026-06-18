@@ -1,7 +1,5 @@
 #!/bin/sh
-
 set -e
-cargo build
 
 wasm-pack build \
     --release \

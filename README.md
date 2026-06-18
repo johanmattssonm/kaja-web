@@ -97,8 +97,6 @@ are added in this crate and reexportedfrom the `kaja_web::prelude` module.
 ## Building WASM Packages
 
 ```bash
-cargo build
-
 wasm-pack build \
     --release \
     --target web \
