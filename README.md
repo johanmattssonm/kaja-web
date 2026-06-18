@@ -27,7 +27,7 @@ pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 })
 fn increment_click_counter() {
     let mut app_data = APP_DATA.write().unwrap();
     app_data.current_count += 1;
-    update_counter_display(&app_data);
+    update_count(&app_data);
 }
 
 fn update_counter_display(app_data: &AppData) {
@@ -37,6 +37,14 @@ fn update_counter_display(app_data: &AppData) {
     }};
 
     try_inner_html(".main-content", content);
+}
+
+fn update_count(app_data: &AppData) {
+    let count = html! {{
+        $(app_data.current_count)
+    }};
+
+    try_inner_html(".click-count", count);
 }
 
 fn main() {
