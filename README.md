@@ -36,7 +36,7 @@ fn update_counter_display(app_data: &AppData) {
         <button onclick="incrementClickCounter()">Click me</button>
     }};
 
-    inner_html(".main-content", content);
+    try_inner_html(".main-content", content);
 }
 
 fn main() {
