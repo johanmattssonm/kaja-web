@@ -1,6 +1,7 @@
 pub use crate::{
-    get_cookie_value, get_element, get_elements, init_callbacks, inner_html, inner_text,
-    try_get_value, try_inner_html, try_inner_text, CallbackRegistration, Error, InitFn, Result,
+    get_callback, get_cookie_value, get_element, get_elements, init_callbacks, inner_html,
+    inner_text, try_get_value, try_inner_html, try_inner_text, CallbackRegistration, Error, InitFn,
+    Result,
 };
 
 pub use gloo::console::error;

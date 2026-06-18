@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use gloo_console::error;
+use gloo_console::{error, log};
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
@@ -246,4 +246,46 @@ pub fn set_session_cookie_value(name: &str, value: &str) -> Result<()> {
     }
 
     Err(Error)
+}
+
+/// A callback registerd with `#[callback(someFoo)]` can ge retrieved via
+/// `get_callback("someFoo")`. This is usefull for assigning the callback
+/// to HTML elements without generating an HTML string.
+///
+/// Example:
+/// ```rust
+/// use web_sys::HtmlImageElement;
+/// use gloo_console::log;
+///
+/// #[callback(taskImageLoaded)]
+/// pub fn task_image_loaded_callback(event: web_sys::Event) {
+///     log!("Image loaded. Processing it ...");
+/// }
+///
+/// fn create_image() {
+///     let img_element = get_element(".the-image");
+///
+///     if let Ok(img_element) = img_element.dyn_into::<HtmlImageElement>() {
+///         let onload_callback = get_callback("taskImageLoaded");
+///         img_element.set_onload(onload_callback.as_ref());
+///
+///         img_element.set_src("https://example.com/the-image.jpg");
+///     }
+/// }
+/// ```
+pub fn get_callback(name: &str) -> Option<js_sys::Function> {
+    let window = web_sys::window()?;
+
+    if let Ok(val) = js_sys::Reflect::get(&window, &wasm_bindgen::JsValue::from_str(name)) {
+        if let Ok(func) = val.dyn_into::<js_sys::Function>() {
+            return Some(func);
+        } else {
+            log!(
+                "Not a callback function: ",
+                name,
+                "Did you run init_callbacks()?"
+            );
+        }
+    }
+    None
 }
