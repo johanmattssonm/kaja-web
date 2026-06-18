@@ -257,20 +257,25 @@ pub fn set_session_cookie_value(name: &str, value: &str) -> Result<()> {
 /// use web_sys::HtmlImageElement;
 /// use gloo_console::log;
 ///
-/// #[callback(taskImageLoaded)]
-/// pub fn task_image_loaded_callback(event: web_sys::Event) {
+/// #[callback(imageLoaded)]
+/// pub fn image_loaded_callback(event: web_sys::Event) {
 ///     log!("Image loaded. Processing it ...");
 /// }
 ///
 /// fn create_image() {
-///     let img_element = get_element(".the-image");
+///     let window = web_sys::window().unwrap();
+///     let document = window.document().unwrap();
 ///
-///     if let Ok(img_element) = img_element.dyn_into::<HtmlImageElement>() {
-///         let onload_callback = get_callback("taskImageLoaded");
-///         img_element.set_onload(onload_callback.as_ref());
+///     let img = document
+///         .create_element("img")
+///         .unwrap()
+///         .dyn_into::<HtmlImageElement>()
+///         .unwrap();
 ///
-///         img_element.set_src("https://example.com/the-image.jpg");
-///     }
+///     let onload_callback = get_callback("imageLoaded");
+///     img.set_onload(onload_callback.as_ref());
+///
+///     img.set_src(&blob_url);
 /// }
 /// ```
 pub fn get_callback(name: &str) -> Option<js_sys::Function> {
