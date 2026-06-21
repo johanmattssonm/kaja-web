@@ -1,6 +1,6 @@
 [package]
 name = "kaja-web"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "Web framework for Rust targeting the WebAssembly"
 license = "MIT"
