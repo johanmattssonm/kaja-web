@@ -2,7 +2,7 @@ use kaja_web::prelude::*;
 use std::sync::RwLock;
 
 struct AppData {
-    current_count: isize,
+    current_count: i32,
 }
 
 pub static APP_DATA: RwLock<AppData> = RwLock::new(AppData { current_count: 0 });
