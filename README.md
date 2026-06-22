@@ -12,6 +12,18 @@ No state changes triggers re-render automatically, run your update function
 manually when you want to render a component and use 
 `inner_html("#the-id", content)` to update the  DOM.
 
+## Dependencies
+```
+cargo add kaja-web
+cargo add kaja-html-macro
+cargo add kaja-callback-macro
+cargo add wasm-bindgen
+cargo add inventory
+cargo add web-sys
+cargo add gloo
+cargo add js-sys
+```
+
 ## Example:
 ```rust
 use kaja_web::prelude::*;
