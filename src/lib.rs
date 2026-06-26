@@ -21,8 +21,6 @@ pub struct CallbackRegistration {
     pub register: fn(),
 }
 
-unsafe impl Sync for CallbackRegistration {}
-
 inventory::collect!(CallbackRegistration);
 
 /// Register callbacks that can be used in JS to run Rust functions in the WASM
