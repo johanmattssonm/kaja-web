@@ -12,6 +12,9 @@ pub mod prelude;
 pub struct InitFn(pub fn());
 inventory::collect!(InitFn);
 
+pub struct InitComponentFn(pub fn());
+inventory::collect!(InitComponentFn);
+
 #[derive(Debug, Clone, Copy)]
 pub struct Error;
 
@@ -50,6 +53,10 @@ inventory::collect!(CallbackRegistration);
 /// }};
 /// ```
 pub fn init_callbacks() {
+    for init in inventory::iter::<InitComponentFn> {
+        (init.0)();
+    }
+
     for init in inventory::iter::<InitFn> {
         (init.0)();
     }
