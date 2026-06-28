@@ -33,7 +33,7 @@ inventory::collect!(CallbackRegistration);
 /// }
 /// ```
 ///
-/// The Rust functions as marked with the `#[callback]` attribute in order to
+/// The Rust functions are marked with the `#[callback]` attribute in order to
 /// be callable from JS. The JS function in this example has the name
 /// `testCallback`. Note that camel case is used in JS and regular snake case
 /// is used in Rust for the same function.
