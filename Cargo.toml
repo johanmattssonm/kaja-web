@@ -8,7 +8,6 @@ repository = "https://github.com/johanmattssonm/kaja-web"
 readme = "README.md"
 keywords = ["html", "web", "wasm", "webassembly", "frontend"]
 
-
 [dependencies]
 gloo = "0.12.0"
 gloo-console = "0.4.0"
@@ -20,4 +19,5 @@ serde-wasm-bindgen = "0.5"
 inventory = "0.3.24"
 js-sys = "0.3"
 wasm-bindgen-futures = "0.4.72"
-kaja-callback-macro = "0.1.0"
+kaja-callback-macro = { path = "../kaja-callback-macro" }
+kaja-web-component = { path = "../kaja-web-component" }

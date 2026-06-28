@@ -446,9 +446,7 @@ dependencies = [
 
 [[package]]
 name = "kaja-callback-macro"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f991f9438ddafefdef1b5fb95a4a60f3bc834b419c27409d8e10a7839c47af8d"
+version = "1.0.0"
 dependencies = [
  "gloo",
  "proc-macro2",
@@ -493,7 +491,6 @@ dependencies = [
  "gloo",
  "inventory",
  "js-sys",
- "kaja-callback-macro",
  "kaja-html-macro",
  "kaja-web",
  "serde",
@@ -1083,7 +1080,3 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
-
-[[patch.unused]]
-name = "kaja-callback-macro"
-version = "1.0.0"

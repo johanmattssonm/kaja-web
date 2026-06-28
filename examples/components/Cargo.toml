@@ -19,7 +19,6 @@ uuid = { version = "1.23.2", features = ["js", "v4"] }
 console_error_panic_hook = "0.1.7"
 inventory = "0.3.24"
 serde-wasm-bindgen = "0.5"
-kaja-callback-macro = "0.1.0"
 
 [patch.crates-io]
 kaja-callback-macro = { path = "../../../kaja-callback-macro" }

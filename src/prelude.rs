@@ -15,3 +15,6 @@ pub use wasm_bindgen_futures;
 
 pub use kaja_callback_macro::callback;
 pub use kaja_html_macro::html;
+pub use kaja_web_component::component;
+
+pub use js_sys::Function;

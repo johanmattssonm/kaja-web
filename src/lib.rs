@@ -4,7 +4,7 @@
 #![doc = include_str!("../README.md")]
 
 use gloo_console::{error, log};
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
@@ -297,4 +297,23 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
         }
     }
     None
+}
+
+/// HTML Component. See kaja-web-component.
+pub trait Component {
+    fn connected(&mut self, element: HtmlElement) {}
+    fn disconnected(&mut self, element: HtmlElement) {}
+    fn observed_attributes() -> &'static [&'static str] {
+        &[]
+    }
+
+    fn attribute_changed(
+        &mut self,
+        element: HtmlElement,
+        name: &str,
+        old_value: &JsValue,
+        new_value: &JsValue,
+    ) {
+        log!("Attribute changed but no update handler for ", name);
+    }
 }

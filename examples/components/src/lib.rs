@@ -34,11 +34,12 @@ fn counter_disconnect(element: HtmlElement, wasm_id: u32) {
 }
 
 #[callback(counterInit)]
-fn counter_init() {
+fn counter_init() -> u32 {
     log!("counterInit");
     let counter = Counter::default();
     let mut counter_store = COUNTER_COMPONENTS.write().unwrap();
     *counter_store = Some(counter);
+    42
 }
 
 fn create_component(tag_name: &str) {
@@ -46,19 +47,19 @@ fn create_component(tag_name: &str) {
 
     let component = Function::new_no_args(
         r#"
-        return class extends HTMLElement {
-            let component_id = -1;
+        let componentId = -1;
 
+        return class extends HTMLElement {
             connectedCallback() {
-                if (component_id == -1) {
-                    component_id = counter_init();
+                if (componentId == -1) {
+                    componentId = counterInit();
                 }
 
-                counterComponentConnect(this, component_id);
+                counterComponentConnect(this, componentId);
             }
 
             disconnectedCallback() {
-                counterComponentDisconnect(this, component_id);
+                counterComponentDisconnect(this, componentId);
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
@@ -145,8 +146,8 @@ fn init_components() {
 pub fn init() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_error_panic_hook::set_once();
-    init_components();
     init_callbacks();
+    init_components();
 
     create_component("example-component")
 }
