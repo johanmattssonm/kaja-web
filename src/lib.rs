@@ -15,6 +15,11 @@ inventory::collect!(InitFn);
 pub struct InitComponentFn(pub fn());
 inventory::collect!(InitComponentFn);
 
+/// Global counter shared by all components created by the #[component] macro.
+/// The proc-macro-generated code will increment this to obtain a unique wasm id.
+pub static NEXT_COMPONENT_COUNTER: std::sync::atomic::AtomicU32 =
+    std::sync::atomic::AtomicU32::new(1);
+
 #[derive(Debug, Clone, Copy)]
 pub struct Error;
 
@@ -53,11 +58,17 @@ inventory::collect!(CallbackRegistration);
 /// }};
 /// ```
 pub fn init_callbacks() {
-    for init in inventory::iter::<InitComponentFn> {
+    log!("init_callbacks");
+
+    log!("init_callbacks functions");
+    for init in inventory::iter::<InitFn> {
+        log!("init fn");
         (init.0)();
     }
 
-    for init in inventory::iter::<InitFn> {
+    log!("init_callbacks components");
+    for init in inventory::iter::<InitComponentFn> {
+        log!("init component");
         (init.0)();
     }
 }
@@ -310,7 +321,7 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 pub trait Component {
     fn connected(&mut self, element: HtmlElement) {}
     fn disconnected(&mut self, element: HtmlElement) {}
-    fn observed_attributes() -> &'static [&'static str] {
+    fn observed_attributes(element: HtmlElement) -> &'static [&'static str] {
         &[]
     }
 
