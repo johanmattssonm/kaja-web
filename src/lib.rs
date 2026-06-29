@@ -336,8 +336,8 @@ pub trait Component {
     }
 }
 
-pub fn get_component_element(id: u32) -> Option<HtmlElement> {
-    let selector = format!("[kajaComponentId='{}']", id);
+pub fn get_component_element(id: &str) -> Option<HtmlElement> {
+    let selector = format!("[componentid='{}']", id);
     let element = get_element(selector.as_str());
     element
 }
