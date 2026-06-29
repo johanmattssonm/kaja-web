@@ -321,7 +321,7 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 pub trait Component {
     fn connected(&mut self, element: HtmlElement) {}
     fn disconnected(&mut self, element: HtmlElement) {}
-    fn observed_attributes(element: HtmlElement) -> &'static [&'static str] {
+    fn observed_attributes() -> &'static [&'static str] {
         &[]
     }
 
@@ -334,4 +334,10 @@ pub trait Component {
     ) {
         log!("Attribute changed but no update handler for ", name);
     }
+}
+
+pub fn get_component_element(id: u32) -> Option<HtmlElement> {
+    let selector = format!("[kajaComponentId='{}']", id);
+    let element = get_element(selector.as_str());
+    element
 }
