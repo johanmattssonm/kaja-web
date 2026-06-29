@@ -1,10 +1,10 @@
 use kaja_web::prelude::*;
 
 mod counter;
-mod main;
+mod main_component;
 
 use counter::*;
-use main::*;
+use main_component::*;
 
 #[wasm_bindgen(start)]
 pub fn init() {

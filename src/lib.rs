@@ -25,6 +25,14 @@ pub static NEXT_COMPONENT_COUNTER: std::sync::atomic::AtomicU32 =
 #[derive(Debug, Clone, Copy)]
 pub struct Error;
 
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "kaja_web::Error")
+    }
+}
+
+impl std::error::Error for Error {}
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct CallbackRegistration {
@@ -60,17 +68,11 @@ inventory::collect!(CallbackRegistration);
 /// }};
 /// ```
 pub fn init_callbacks() {
-    log!("init_callbacks");
-
-    log!("init_callbacks functions");
     for init in inventory::iter::<InitFn> {
-        log!("init fn");
         (init.0)();
     }
 
-    log!("init_callbacks components");
     for init in inventory::iter::<InitComponentFn> {
-        log!("init component");
         (init.0)();
     }
 }
@@ -346,14 +348,14 @@ pub fn get_component_element(id: &str) -> Option<HtmlElement> {
 }
 
 pub trait ComponentStorage: Sized {
-    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::RwLock<Self>>>>>;
+    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>>;
 }
 
 /// Returns a cloned Arc pointing to the stored component. The component itself is
 /// protected by an `RwLock` so callers can lock it for mutable or shared access when needed.
 pub fn get_component<T: ComponentStorage + 'static>(
     id: &str,
-) -> Option<std::sync::Arc<std::sync::RwLock<T>>> {
+) -> Option<std::sync::Arc<std::sync::Mutex<T>>> {
     let map_lock = T::storage().read();
 
     if map_lock.is_err() {

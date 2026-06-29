@@ -15,7 +15,6 @@ impl Component for Counter {
     }
 
     fn observed_attributes() -> &'static [&'static str] {
-        log!("fetching observed attributes");
         &["count"]
     }
 
@@ -26,7 +25,6 @@ impl Component for Counter {
         old_value: &str,
         new_value: &str,
     ) {
-        log!("change", name, "from", old_value, "to", new_value);
         self.render(&element);
     }
 }
@@ -62,8 +60,6 @@ impl Counter {
 
 #[callback(increment)]
 pub fn increment(id: String) {
-    log!("increment");
-
     let element = get_component_element(id.as_str());
 
     if element.is_none() {
@@ -86,7 +82,7 @@ pub fn increment(id: String) {
     let new_count = count + 1;
 
     if let Some(counter_arc) = get_component::<Counter>(id.as_str()) {
-        let mut counter = counter_arc.write().unwrap();
+        let mut counter = counter_arc.lock().unwrap();
         counter.value = new_count;
         counter.render(&html_element);
     } else {
