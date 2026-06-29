@@ -9,6 +9,8 @@ use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
 
+use prelude::*;
+
 pub struct InitFn(pub fn());
 inventory::collect!(InitFn);
 
@@ -320,15 +322,15 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 
 /// HTML Component. See kaja-web-component.
 pub trait Component {
-    fn connected(&mut self, element: HtmlElement) {}
-    fn disconnected(&mut self, element: HtmlElement) {}
+    fn connected(&mut self, parent: HtmlElement) {}
+    fn disconnected(&mut self, parent: HtmlElement) {}
     fn observed_attributes() -> &'static [&'static str] {
         &[]
     }
 
     fn attribute_changed(
         &mut self,
-        element: HtmlElement,
+        parent: HtmlElement,
         name: &str,
         old_value: &JsValue,
         new_value: &JsValue,
@@ -341,4 +343,31 @@ pub fn get_component_element(id: &str) -> Option<HtmlElement> {
     let selector = format!("[componentid='{}']", id);
     let element = get_element(selector.as_str());
     element
+}
+
+pub trait ComponentStorage: Sized {
+    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>>;
+}
+
+/// Returns a cloned Arc pointing to the stored component. The component itself is
+/// protected by a `Mutex` so callers can lock it for mutable access when needed.
+pub fn get_component<T: ComponentStorage + 'static>(
+    id: &str,
+) -> Option<std::sync::Arc<std::sync::Mutex<T>>> {
+    let map_lock = T::storage().read();
+
+    if map_lock.is_err() {
+        error!("Failed to take storage lock");
+        return None;
+    }
+
+    let store_opt = map_lock.unwrap();
+
+    if store_opt.is_none() {
+        error!("Store not initialized");
+        return None;
+    }
+
+    let map = store_opt.as_ref().unwrap();
+    map.get(id).cloned()
 }
