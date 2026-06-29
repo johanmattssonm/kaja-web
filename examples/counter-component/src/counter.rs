@@ -75,20 +75,24 @@ pub fn increment(id: String) {
         return;
     }
 
-    let count = count_attribute
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or(-1);
+    let count = count_attribute.unwrap().parse::<i32>();
 
-    let new_count = count + 1;
+    if !count.is_ok() {
+        error!("Count is not an integer.");
+        return;
+    }
+
+    let mut current_count = count.unwrap();
+    current_count += 1;
 
     if let Some(counter_arc) = get_component::<Counter>(id.as_str()) {
         let mut counter = counter_arc.lock().unwrap();
-        counter.value = new_count;
+        counter.value = current_count;
         counter.render(&html_element);
     } else {
         error!("Component not found for id", id);
         return;
     }
 
-    let _ = html_element.set_attribute("count", new_count.to_string().as_str());
+    let _ = html_element.set_attribute("count", current_count.to_string().as_str());
 }
