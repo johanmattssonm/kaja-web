@@ -89,8 +89,9 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
 
     if elements.length() > 1 {
         let msg = format!(
-            "Expecting a single element, found {} instead.",
-            elements.length()
+            "Expecting a single element, found {} instead, for {}",
+            elements.length(),
+            selector
         );
 
         error!(msg);
