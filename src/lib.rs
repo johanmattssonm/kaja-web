@@ -332,8 +332,8 @@ pub trait Component {
         &mut self,
         parent: HtmlElement,
         name: &str,
-        old_value: &JsValue,
-        new_value: &JsValue,
+        old_value: &str,
+        new_value: &str,
     ) {
         log!("Attribute changed but no update handler for ", name);
     }

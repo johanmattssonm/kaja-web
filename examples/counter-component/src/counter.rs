@@ -23,8 +23,8 @@ impl Component for Counter {
         &mut self,
         element: HtmlElement,
         name: &str,
-        old_value: &JsValue,
-        new_value: &JsValue,
+        old_value: &str,
+        new_value: &str,
     ) {
         log!("change", name, "from", old_value, "to", new_value);
         self.render(&element);
