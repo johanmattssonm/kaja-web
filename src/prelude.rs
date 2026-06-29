@@ -10,7 +10,7 @@ pub use gloo::console::log;
 pub use serde_wasm_bindgen;
 
 pub use std::collections::HashMap;
-pub use std::sync::{Mutex, RwLock};
+pub use std::sync::RwLock;
 
 pub use wasm_bindgen::JsCast;
 pub use wasm_bindgen::JsValue;
@@ -22,3 +22,4 @@ pub use kaja_html_macro::html;
 pub use kaja_web_component::component;
 
 pub use js_sys::Function;
+pub use web_sys::HtmlElement;

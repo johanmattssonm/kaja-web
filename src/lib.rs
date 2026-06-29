@@ -346,14 +346,14 @@ pub fn get_component_element(id: &str) -> Option<HtmlElement> {
 }
 
 pub trait ComponentStorage: Sized {
-    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>>;
+    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::RwLock<Self>>>>>;
 }
 
 /// Returns a cloned Arc pointing to the stored component. The component itself is
-/// protected by a `Mutex` so callers can lock it for mutable access when needed.
+/// protected by an `RwLock` so callers can lock it for mutable or shared access when needed.
 pub fn get_component<T: ComponentStorage + 'static>(
     id: &str,
-) -> Option<std::sync::Arc<std::sync::Mutex<T>>> {
+) -> Option<std::sync::Arc<std::sync::RwLock<T>>> {
     let map_lock = T::storage().read();
 
     if map_lock.is_err() {
