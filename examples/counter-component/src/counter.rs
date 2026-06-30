@@ -5,7 +5,7 @@ pub struct Counter {
     value: i32,
 }
 
-impl Component for Counter {
+impl Counter {
     fn connected(&mut self, element: HtmlElement) {
         self.render(&element);
     }
@@ -38,19 +38,11 @@ impl Counter {
             return;
         }
 
-        let component_id = element.get_attribute("componentid");
-
-        if component_id.is_none() {
-            log!("No component_id.");
-            return;
-        }
-
-        let id = component_id.unwrap();
-
+        let component_id = self.get_component_id();
         let content = html! {{
             <p>
                 Count: $(count.unwrap())
-                <button onclick="increment('$id');">Increment</button>
+                <button onclick="increment('$component_id');">Increment</button>
             </p>
         }};
 
@@ -60,39 +52,34 @@ impl Counter {
 
 #[callback(increment)]
 pub fn increment(id: String) {
-    let element = get_component_element(id.as_str());
+    log!("increment");
+    // id is a String from the callback; update_component accepts AsRef<str>.
+    update_component(id, |component: &mut Counter, element: &HtmlElement| {
+        log!("update_component", component.get_component_id());
+        increment_component(component, element);
+    });
+}
 
-    if element.is_none() {
-        error!("Element not found for id", id);
-        return;
-    }
-
-    let html_element = element.unwrap();
-    let count_attribute = html_element.get_attribute("count");
+fn increment_component(component: &mut Counter, element: &HtmlElement) {
+    let count_attribute = element.get_attribute("count");
 
     if count_attribute.is_none() {
-        error!("Attribute count not found for id", id);
+        error!("Attribute 'count' not found for element");
         return;
     }
 
-    let count = count_attribute.unwrap().parse::<i32>();
-
-    if !count.is_ok() {
+    let count_res = count_attribute.unwrap().parse::<i32>();
+    if count_res.is_err() {
         error!("Count is not an integer.");
         return;
     }
 
-    let mut current_count = count.unwrap();
-    current_count += 1;
+    let new_count = count_res.unwrap() + 1;
 
-    if let Some(counter_arc) = get_component::<Counter>(id.as_str()) {
-        let mut counter = counter_arc.lock().unwrap();
-        counter.value = current_count;
-        counter.render(&html_element);
-    } else {
-        error!("Component not found for id", id);
-        return;
-    }
+    component.value = new_count;
+    element.set_attribute("count", new_count.to_string().as_str());
 
-    let _ = html_element.set_attribute("count", current_count.to_string().as_str());
+    log!("new count", new_count);
+
+    component.render(element);
 }

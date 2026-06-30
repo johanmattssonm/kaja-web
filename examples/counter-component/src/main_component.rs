@@ -5,7 +5,7 @@ pub struct Main {
     message: Option<String>,
 }
 
-impl Component for Main {
+impl Main {
     fn connected(&mut self, element: HtmlElement) {
         self.render(element);
     }

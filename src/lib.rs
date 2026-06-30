@@ -4,7 +4,7 @@
 #![doc = include_str!("../README.md")]
 
 use gloo_console::{error, log};
-use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
@@ -339,6 +339,8 @@ pub trait Component {
     ) {
         log!("Attribute changed but no update handler for ", name);
     }
+
+    fn get_component_id(&self) -> String;
 }
 
 pub fn get_component_element(id: &str) -> Option<HtmlElement> {
@@ -372,4 +374,39 @@ pub fn get_component<T: ComponentStorage + 'static>(
 
     let map = store_opt.as_ref().unwrap();
     map.get(id).cloned()
+}
+
+pub fn update_component<F, T, S>(id: S, callback: F)
+where
+    S: AsRef<str>,
+    F: Fn(&mut T, &HtmlElement),
+    T: ComponentStorage + 'static,
+{
+    let id_ref = id.as_ref();
+    let element_opt = get_component_element(id_ref);
+
+    if element_opt.is_none() {
+        error!("Element not found for id", id_ref);
+        return;
+    }
+
+    let element = element_opt.unwrap();
+
+    let component_opt = get_component::<T>(id_ref);
+
+    if component_opt.is_none() {
+        error!("Component not found for id", id_ref);
+        return;
+    }
+
+    let component_arc = component_opt.unwrap();
+    match component_arc.try_lock() {
+        Ok(mut component) => {
+            callback(&mut component, &element);
+        }
+        Err(_) => {
+            error!("Can't lock component for id", id_ref);
+            return;
+        }
+    }
 }
