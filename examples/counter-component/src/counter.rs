@@ -5,9 +5,8 @@ pub struct Counter {
     value: i32,
 }
 
-impl Counter {
+impl Component for Counter {
     fn connected(&mut self, element: HtmlElement) {
-        log!("Element connected");
         self.render(&element);
     }
 
@@ -26,8 +25,6 @@ impl Counter {
         old_value: &str,
         new_value: &str,
     ) {
-        log!("Attribute changed", name, new_value);
-
         match name {
             "count" => {
                 self.value = new_value.parse::<i32>().expect("Not an integer.");
@@ -39,9 +36,7 @@ impl Counter {
 
         self.render(&element);
     }
-}
 
-impl Counter {
     fn render(&self, element: &HtmlElement) {
         let count = element.get_attribute("count");
 
@@ -64,7 +59,6 @@ impl Counter {
 
 #[callback(increment)]
 pub fn increment(id: String) {
-    log!("increment");
     let html_element = get_component_element(id.as_str());
 
     if html_element.is_none() {
@@ -82,7 +76,7 @@ pub fn increment(id: String) {
 
     set_value!(&id, Counter.value, new_count);
     element.set_attribute("count", new_count.to_string().as_str());
-    rerender(&id);
+    rerender::<Counter>(&id);
 }
 
 fn increment_component(html_element: &HtmlElement) -> i32 {
@@ -102,19 +96,4 @@ fn increment_component(html_element: &HtmlElement) -> i32 {
 
     let new_count = count_res.unwrap() + 1;
     new_count
-}
-
-fn rerender(id: &str) {
-    let component = get_component::<Counter>(id);
-    let binding = component.unwrap();
-    let component_binding = binding.lock().unwrap();
-    let html_element = get_component_element(id);
-
-    if html_element.is_none() {
-        error!("No html_element in rerender.");
-        return;
-    }
-
-    let element = html_element.unwrap();
-    component_binding.render(&element);
 }

@@ -324,23 +324,24 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 
 /// HTML Component. See kaja-web-component.
 pub trait Component {
-    fn connected(&mut self, parent: HtmlElement) {}
-    fn disconnected(&mut self, parent: HtmlElement) {}
+    fn connected(&mut self, _parent: HtmlElement) {}
+    fn disconnected(&mut self, _parent: HtmlElement) {}
     fn observed_attributes() -> &'static [&'static str] {
         &[]
     }
 
     fn attribute_changed(
         &mut self,
-        parent: HtmlElement,
+        _parent: HtmlElement,
         name: &str,
-        old_value: &str,
-        new_value: &str,
+        _old_value: &str,
+        _new_value: &str,
     ) {
         log!("Attribute changed but no update handler for ", name);
     }
 
-    fn get_component_id(&self) -> String;
+    /// Render the component into the given element.
+    fn render(&self, _element: &HtmlElement) {}
 }
 
 pub fn get_component_element(id: &str) -> Option<HtmlElement> {
@@ -387,41 +388,6 @@ pub fn get_component_id(element: &HtmlElement) -> String {
     id.unwrap()
 }
 
-pub fn update_component<F, T, S>(id: S, callback: F)
-where
-    S: AsRef<str>,
-    F: Fn(&mut T, &HtmlElement),
-    T: ComponentStorage + 'static,
-{
-    let id_ref = id.as_ref();
-    let element_opt = get_component_element(id_ref);
-
-    if element_opt.is_none() {
-        error!("Element not found for id", id_ref);
-        return;
-    }
-
-    let element = element_opt.unwrap();
-
-    let component_opt = get_component::<T>(id_ref);
-
-    if component_opt.is_none() {
-        error!("Component not found for id", id_ref);
-        return;
-    }
-
-    let component_arc = component_opt.unwrap();
-    match component_arc.try_lock() {
-        Ok(mut component) => {
-            callback(&mut component, &element);
-        }
-        Err(_) => {
-            error!("Can't lock component for id", id_ref);
-            return;
-        }
-    }
-}
-
 // Example: let count = get_value!(&id, Counter.field);
 #[macro_export]
 macro_rules! get_value {
@@ -440,4 +406,22 @@ macro_rules! set_value {
         let mut guard = component.lock().unwrap();
         guard.$field = $value;
     }};
+}
+
+pub fn rerender<T>(id: &str)
+where
+    T: ComponentStorage + Component + 'static,
+{
+    let component = get_component::<T>(id);
+    let binding = component.unwrap();
+    let component_binding = binding.lock().unwrap();
+    let html_element = get_component_element(id);
+
+    if html_element.is_none() {
+        error!("No html_element in rerender.");
+        return;
+    }
+
+    let element = html_element.unwrap();
+    component_binding.render(&element);
 }
