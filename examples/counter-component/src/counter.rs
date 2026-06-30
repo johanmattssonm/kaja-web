@@ -2,7 +2,7 @@ use kaja_web::prelude::*;
 
 #[component("counter-component")]
 pub struct Counter {
-    value: i32,
+    total_num_clicks: i32,
 }
 
 impl Component for Counter {
@@ -27,7 +27,8 @@ impl Component for Counter {
     ) {
         match name {
             "count" => {
-                self.value = new_value.parse::<i32>().expect("Not an integer.");
+                let count_value = new_value.parse::<i32>().expect("Not an integer.");
+                log!("count updated: ", count_value);
             }
             _ => {
                 log!("attribute_changed not implementd for", name);
@@ -50,6 +51,7 @@ impl Component for Counter {
             <p>
                 Count: $(count.unwrap())
                 <button onclick="increment('$component_id');">Increment</button>
+                <button onclick="decrement('$component_id');">Decrement</button>
             </p>
         }};
 
@@ -59,41 +61,58 @@ impl Component for Counter {
 
 #[callback(increment)]
 pub fn increment(id: String) {
-    let html_element = get_component_element(id.as_str());
+    increment_total(&id);
+    update_count(&id, 1);
+    rerender::<Counter>(&id);
+}
+
+#[callback(decrement)]
+pub fn decrement(id: String) {
+    increment_total(&id);
+    update_count(&id, -1);
+    rerender::<Counter>(&id);
+}
+
+fn increment_total(id: &str) {
+    let mut total_clicks = get_value!(id, Counter.total_num_clicks);
+    total_clicks += 1;
+    set_value!(&id, Counter.total_num_clicks, total_clicks);
+    log!("total clicks: ", total_clicks);
+}
+
+fn update_count(id: &str, change: i32) {
+    let html_element = get_component_element(id);
 
     if html_element.is_none() {
-        error!("No html_element in increment callback.");
+        error!("No html_element in update_count.");
         return;
     }
 
     let element = html_element.unwrap();
-    let mut new_count = increment_component(&element);
+    let mut new_count = update_count_in_element(&element, change);
 
-    if new_count == -1 {
-        error!("Increment failed.");
-        return;
+    if let Some(count) = new_count {
+        element.set_attribute("count", count.to_string().as_str());
+    } else {
+        error!("Click counter failed.");
     }
-
-    set_value!(&id, Counter.value, new_count);
-    element.set_attribute("count", new_count.to_string().as_str());
-    rerender::<Counter>(&id);
 }
 
-fn increment_component(html_element: &HtmlElement) -> i32 {
+fn update_count_in_element(html_element: &HtmlElement, change: i32) -> Option<i32> {
     let count_attribute = html_element.get_attribute("count");
 
     if count_attribute.is_none() {
         error!("Attribute 'count' not found for element");
-        return -1;
+        return None;
     }
 
     let count_res = count_attribute.unwrap().parse::<i32>();
 
     if count_res.is_err() {
         error!("Count is not an integer.");
-        return -1;
+        return None;
     }
 
-    let new_count = count_res.unwrap() + 1;
-    new_count
+    let new_count = count_res.unwrap() + change;
+    Some(new_count)
 }
