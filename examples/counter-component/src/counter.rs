@@ -10,7 +10,7 @@ impl Component for Counter {
         self.render(&element);
     }
 
-    fn disconnected(&mut self, element: HtmlElement) {
+    fn disconnected(&mut self, _element: HtmlElement) {
         log!("Element removed");
     }
 
@@ -22,7 +22,7 @@ impl Component for Counter {
         &mut self,
         element: HtmlElement,
         name: &str,
-        old_value: &str,
+        _old_value: &str,
         new_value: &str,
     ) {
         match name {
@@ -89,10 +89,12 @@ fn update_count(id: &str, change: i32) {
     }
 
     let element = html_element.unwrap();
-    let mut new_count = update_count_in_element(&element, change);
+    let new_count = update_count_in_element(&element, change);
 
     if let Some(count) = new_count {
-        element.set_attribute("count", count.to_string().as_str());
+        if let Err(e) = element.set_attribute("count", count.to_string().as_str()) {
+            error!("Failed to set attribute 'count'.", e);
+        }
     } else {
         error!("Click counter failed.");
     }

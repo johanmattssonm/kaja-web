@@ -3,8 +3,7 @@ use kaja_web::prelude::*;
 mod counter;
 mod main_component;
 
-use counter::*;
-use main_component::*;
+
 
 #[wasm_bindgen(start)]
 pub fn init() {
