@@ -90,10 +90,7 @@ pub fn increment(id: String) {
 fn rerender(id: &str) {
     let component = get_component::<Counter>(id);
     let binding = component.unwrap();
-    let c = binding.lock().unwrap();
-
-    log!("new count", c.value);
-
+    let component_binding = binding.lock().unwrap();
     let html_element = get_component_element(id);
 
     if html_element.is_none() {
@@ -102,7 +99,7 @@ fn rerender(id: &str) {
     }
 
     let element = html_element.unwrap();
-    c.render(&element);
+    component_binding.render(&element);
 }
 
 fn get_value(id: &str) -> i32 {
