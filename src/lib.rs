@@ -376,6 +376,17 @@ pub fn get_component<T: ComponentStorage + 'static>(
     map.get(id).cloned()
 }
 
+pub fn get_component_id(element: &HtmlElement) -> String {
+    let id = element.get_attribute("componentid");
+
+    if id.is_none() {
+        error!("No component id is set for element.");
+        return "".to_string();
+    }
+
+    id.unwrap()
+}
+
 pub fn update_component<F, T, S>(id: S, callback: F)
 where
     S: AsRef<str>,
@@ -409,4 +420,24 @@ where
             return;
         }
     }
+}
+
+// Example: let count = get_value!(&id, Counter.field);
+#[macro_export]
+macro_rules! get_value {
+    ($id:expr, $component:ident $(:: $comp_rest:ident)* . $field:ident) => {{
+        let component = $crate::get_component::<$component $(:: $comp_rest)*>($id).unwrap();
+        let guard = component.lock().unwrap();
+        guard.$field.clone()
+    }};
+}
+
+// Example: let count = set_value!(&id, Counter.field, value);
+#[macro_export]
+macro_rules! set_value {
+    ($id:expr, $component:ident $(:: $comp_rest:ident)* . $field:ident, $value:expr) => {{
+        let component = $crate::get_component::<$component $(:: $comp_rest)*>($id).unwrap();
+        let mut guard = component.lock().unwrap();
+        guard.$field = $value;
+    }};
 }

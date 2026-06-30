@@ -1,8 +1,8 @@
 pub use crate::{
     CallbackRegistration, Component, ComponentStorage, Error, InitComponentFn, InitFn, Result,
-    get_callback, get_component, get_component_element, get_cookie_value, get_element,
-    get_elements, get_value, init_callbacks, inner_html, inner_text, try_get_value, try_inner_html,
-    try_inner_text, update_component,
+    get_callback, get_component, get_component_element, get_component_id, get_cookie_value,
+    get_element, get_elements, get_value, init_callbacks, inner_html, inner_text, set_value,
+    try_get_value, try_inner_html, try_inner_text, update_component,
 };
 
 pub use gloo::console::error;
@@ -10,7 +10,7 @@ pub use gloo::console::log;
 pub use serde_wasm_bindgen;
 
 pub use std::collections::HashMap;
-pub use std::sync::RwLock;
+pub use std::sync::{MutexGuard, RwLock};
 
 pub use wasm_bindgen::JsCast;
 pub use wasm_bindgen::JsValue;

@@ -21,3 +21,20 @@ impl Main {
         element.set_inner_html(content.as_str());
     }
 }
+
+impl Main {
+    fn disconnected(&mut self, _element: HtmlElement) {}
+
+    fn observed_attributes() -> &'static [&'static str] {
+        &[]
+    }
+
+    fn attribute_changed(
+        &mut self,
+        _parent: HtmlElement,
+        _name: &str,
+        _old_value: &str,
+        _new_value: &str,
+    ) {
+    }
+}

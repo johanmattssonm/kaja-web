@@ -50,7 +50,7 @@ impl Counter {
             return;
         }
 
-        let component_id = self.get_component_id();
+        let component_id = get_component_id(element);
         let content = html! {{
             <p>
                 Count: $(count.unwrap())
@@ -65,13 +65,6 @@ impl Counter {
 #[callback(increment)]
 pub fn increment(id: String) {
     log!("increment");
-    let mut new_count = -1;
-
-    update_component(&id, |component: &mut Counter, element: &HtmlElement| {
-        log!("update_component", component.get_component_id());
-        increment_component(component, element);
-    });
-
     let html_element = get_component_element(id.as_str());
 
     if html_element.is_none() {
@@ -79,12 +72,36 @@ pub fn increment(id: String) {
         return;
     }
 
-    let count = get_value(&id);
-
     let element = html_element.unwrap();
-    element.set_attribute("count", count.to_string().as_str());
+    let mut new_count = increment_component(&element);
 
+    if new_count == -1 {
+        error!("Increment failed.");
+        return;
+    }
+
+    set_value!(&id, Counter.value, new_count);
+    element.set_attribute("count", new_count.to_string().as_str());
     rerender(&id);
+}
+
+fn increment_component(html_element: &HtmlElement) -> i32 {
+    let count_attribute = html_element.get_attribute("count");
+
+    if count_attribute.is_none() {
+        error!("Attribute 'count' not found for element");
+        return -1;
+    }
+
+    let count_res = count_attribute.unwrap().parse::<i32>();
+
+    if count_res.is_err() {
+        error!("Count is not an integer.");
+        return -1;
+    }
+
+    let new_count = count_res.unwrap() + 1;
+    new_count
 }
 
 fn rerender(id: &str) {
@@ -100,30 +117,4 @@ fn rerender(id: &str) {
 
     let element = html_element.unwrap();
     component_binding.render(&element);
-}
-
-fn get_value(id: &str) -> i32 {
-    let component = get_component::<Counter>(id);
-    let binding = component.unwrap();
-    let c = binding.lock().unwrap();
-    c.value
-}
-
-fn increment_component(component: &mut Counter, element: &HtmlElement) {
-    let count_attribute = element.get_attribute("count");
-
-    if count_attribute.is_none() {
-        error!("Attribute 'count' not found for element");
-        return;
-    }
-
-    let count_res = count_attribute.unwrap().parse::<i32>();
-    if count_res.is_err() {
-        error!("Count is not an integer.");
-        return;
-    }
-
-    let new_count = count_res.unwrap() + 1;
-
-    component.value = new_count;
 }
