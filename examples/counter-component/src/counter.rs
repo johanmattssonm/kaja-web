@@ -7,6 +7,7 @@ pub struct Counter {
 
 impl Counter {
     fn connected(&mut self, element: HtmlElement) {
+        log!("Element connected");
         self.render(&element);
     }
 
@@ -25,6 +26,17 @@ impl Counter {
         old_value: &str,
         new_value: &str,
     ) {
+        log!("Attribute changed", name, new_value);
+
+        match name {
+            "count" => {
+                self.value = new_value.parse::<i32>().expect("Not an integer.");
+            }
+            _ => {
+                log!("attribute_changed not implementd for", name);
+            }
+        }
+
         self.render(&element);
     }
 }
@@ -53,11 +65,51 @@ impl Counter {
 #[callback(increment)]
 pub fn increment(id: String) {
     log!("increment");
-    // id is a String from the callback; update_component accepts AsRef<str>.
-    update_component(id, |component: &mut Counter, element: &HtmlElement| {
+    let mut new_count = -1;
+
+    update_component(&id, |component: &mut Counter, element: &HtmlElement| {
         log!("update_component", component.get_component_id());
         increment_component(component, element);
     });
+
+    let html_element = get_component_element(id.as_str());
+
+    if html_element.is_none() {
+        error!("No html_element in increment callback.");
+        return;
+    }
+
+    let count = get_value(&id);
+
+    let element = html_element.unwrap();
+    element.set_attribute("count", count.to_string().as_str());
+
+    rerender(&id);
+}
+
+fn rerender(id: &str) {
+    let component = get_component::<Counter>(id);
+    let binding = component.unwrap();
+    let c = binding.lock().unwrap();
+
+    log!("new count", c.value);
+
+    let html_element = get_component_element(id);
+
+    if html_element.is_none() {
+        error!("No html_element in rerender.");
+        return;
+    }
+
+    let element = html_element.unwrap();
+    c.render(&element);
+}
+
+fn get_value(id: &str) -> i32 {
+    let component = get_component::<Counter>(id);
+    let binding = component.unwrap();
+    let c = binding.lock().unwrap();
+    c.value
 }
 
 fn increment_component(component: &mut Counter, element: &HtmlElement) {
@@ -77,9 +129,4 @@ fn increment_component(component: &mut Counter, element: &HtmlElement) {
     let new_count = count_res.unwrap() + 1;
 
     component.value = new_count;
-    element.set_attribute("count", new_count.to_string().as_str());
-
-    log!("new count", new_count);
-
-    component.render(element);
 }
