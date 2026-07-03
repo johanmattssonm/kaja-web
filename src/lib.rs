@@ -425,3 +425,29 @@ where
     let element = html_element.unwrap();
     component_binding.render(&element);
 }
+
+pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
+    use js_sys::Array;
+    use wasm_bindgen::JsValue;
+
+    let token = {
+        let arr = Array::new();
+        arr.push(&JsValue::from_str(css_class));
+        arr
+    };
+
+    element.class_list().remove(&token);
+}
+
+pub fn add_css_class(element: &HtmlElement, css_class: &str) {
+    use js_sys::Array;
+    use wasm_bindgen::JsValue;
+
+    let token = {
+        let arr = Array::new();
+        arr.push(&JsValue::from_str(css_class));
+        arr
+    };
+
+    element.class_list().add(&token);
+}
