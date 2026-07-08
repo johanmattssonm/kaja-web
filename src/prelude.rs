@@ -1,8 +1,8 @@
 pub use crate::{
     CallbackRegistration, Component, ComponentStorage, Error, InitComponentFn, InitFn, Result,
-    add_css_class, get_callback, get_component, get_component_element, get_component_id,
-    get_cookie_value, get_element, get_elements, get_value, init_callbacks, inner_html, inner_text,
-    remove_css_class, rerender, set_value, try_get_value, try_inner_html, try_inner_text,
+    get_callback, get_component, get_component_element, get_component_id, get_cookie_value,
+    get_element, get_elements, get_value, init_callbacks, inner_html, inner_text, rerender,
+    set_value, try_get_value, try_inner_html, try_inner_text,
 };
 
 pub use gloo::console::error;

@@ -5,7 +5,8 @@ wasm-pack build \
     --release \
     --target web \
     --out-dir pkg \
-    --out-name componentexample
+    --out-name componentexample \
+    --no-typescript
 
 cp index.html pkg/
 cp main.js pkg/
