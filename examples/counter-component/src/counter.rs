@@ -5,8 +5,14 @@ pub struct Counter {
     total_num_clicks: i32,
 }
 
-impl Component for Counter {
+impl Component for Arc<Mutex<Counter>> {
     fn connected(&mut self, element: HtmlElement) {
+        log!(
+            "Connected component",
+            self.get_component_name(),
+            self.get_element_id()
+        );
+
         self.render(&element);
     }
 
@@ -74,9 +80,10 @@ pub fn decrement(id: String) {
 }
 
 fn increment_total(id: &str) {
-    let mut total_clicks = get_value!(id, Counter.total_num_clicks);
-    total_clicks += 1;
-    set_value!(&id, Counter.total_num_clicks, total_clicks);
+    let component_arc = get_component_arc(id);
+    let mut component = component_arc.lock().unwrap();
+    component.total_num_clicks += 1;
+
     log!("total clicks: ", total_clicks);
 }
 
