@@ -3,7 +3,7 @@ use kaja_web::prelude::*;
 #[component("main-component")]
 pub struct Main;
 
-impl Component for Arc<Mutex<Main>> {
+impl Component for Main {
     fn connected(&mut self, element: HtmlElement) {
         self.render(&element);
     }

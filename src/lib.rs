@@ -17,6 +17,9 @@ inventory::collect!(InitFn);
 pub struct InitComponentFn(pub fn());
 inventory::collect!(InitComponentFn);
 
+pub struct UpdateComponentFn(pub fn(id: &str) -> bool);
+inventory::collect!(UpdateComponentFn);
+
 /// Global counter shared by all components created by the #[component] macro.
 /// The proc-macro-generated code will increment this to obtain a unique wasm id.
 pub static NEXT_COMPONENT_COUNTER: std::sync::atomic::AtomicU32 =
@@ -74,6 +77,16 @@ pub fn init_callbacks() {
 
     for init in inventory::iter::<InitComponentFn> {
         (init.0)();
+    }
+}
+
+pub fn update(id: &str) {
+    for init in inventory::iter::<UpdateComponentFn> {
+        let result = (init.0)(id);
+
+        if result {
+            return;
+        }
     }
 }
 
@@ -350,6 +363,12 @@ pub fn get_component_element(id: &str) -> Option<HtmlElement> {
     element
 }
 
+pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
+    let selector = format!("#{}", id);
+    let element = get_element(selector.as_str());
+    element
+}
+
 pub trait ComponentStorage: Sized {
     fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>>;
 }
@@ -424,4 +443,30 @@ where
 
     let element = html_element.unwrap();
     component_binding.render(&element);
+}
+
+pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
+    use js_sys::Array;
+    use wasm_bindgen::JsValue;
+
+    let token = {
+        let arr = Array::new();
+        arr.push(&JsValue::from_str(css_class));
+        arr
+    };
+
+    let _ = element.class_list().remove(&token);
+}
+
+pub fn add_css_class(element: &HtmlElement, css_class: &str) {
+    use js_sys::Array;
+    use wasm_bindgen::JsValue;
+
+    let token = {
+        let arr = Array::new();
+        arr.push(&JsValue::from_str(css_class));
+        arr
+    };
+
+    let _ = element.class_list().add(&token);
 }

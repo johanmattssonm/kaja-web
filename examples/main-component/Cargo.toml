@@ -1,0 +1,27 @@
+[package]
+name = "kaja-web-component-counter-example"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+threads = []
+
+[dependencies]
+wasm-bindgen = "0.2.122"
+kaja-web = { version = "1.0.2", path = "../.." }
+js-sys = "0.3"
+web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList", "CustomElementRegistry", "ElementDefinitionOptions"] }
+gloo = { version = "0.12", features = ["futures"] }
+kaja-html-macro = "1.0.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+uuid = { version = "1.23.2", features = ["js", "v4"] }
+console_error_panic_hook = "0.1.7"
+inventory = "0.3.24"
+serde-wasm-bindgen = "0.5"
+gloo-timers = { version = "0.4.0", features = ["futures"] }
+wasm-bindgen-futures = "0.4.76"
+async-channel = "2"
