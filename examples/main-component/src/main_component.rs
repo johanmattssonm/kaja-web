@@ -19,19 +19,12 @@ impl Component for Main {
     }
 
     fn update(id: &str) {
-        log!("Main ui_thread_update:", id);
+        log!("Main update:", id);
 
         let Some(handle) = Self::get_component(id) else {
             error!("Main component not found:", id);
             return;
         };
-
-        let Some(element) = get_element_by_id("2") else {
-            error!("Element 2 not found:");
-            return;
-        };
-
-        log!("Element 2 found");
 
         let Some(element) = get_element_by_id(id) else {
             error!("Element not found:", id);
@@ -51,7 +44,6 @@ impl Main {
     }
 }
 
-#[cfg(not(feature = "threads"))]
 fn start_background(id: &str) {
     let component_id = id.to_string();
 
@@ -59,18 +51,6 @@ fn start_background(id: &str) {
         loop {
             Main::post_ui_thread_update(component_id.as_str());
             gloo_timers::future::TimeoutFuture::new(1000).await;
-        }
-    });
-}
-
-#[cfg(feature = "threads")]
-fn start_background(id: &str) {
-    let component_id = id.to_string();
-
-    std::thread::spawn(move || {
-        loop {
-            Main::post_ui_thread_update(component_id.as_str());
-            std::thread::sleep(std::time::Duration::from_secs(1));
         }
     });
 }

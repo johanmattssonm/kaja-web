@@ -457,6 +457,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kaja-callback-macro"
+version = "1.0.0"
+dependencies = [
+ "gloo",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "kaja-html-macro"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -470,14 +480,15 @@ dependencies = [
 
 [[package]]
 name = "kaja-web"
-version = "1.0.0"
+version = "1.0.2"
 dependencies = [
  "gloo",
  "gloo-console",
  "inventory",
  "js-sys",
- "kaja-callback-macro",
+ "kaja-callback-macro 1.0.0",
  "kaja-html-macro",
+ "kaja-web-component",
  "serde",
  "serde-wasm-bindgen 0.5.0",
  "wasm-bindgen",
@@ -493,7 +504,7 @@ dependencies = [
  "gloo",
  "inventory",
  "js-sys",
- "kaja-callback-macro",
+ "kaja-callback-macro 0.1.0",
  "kaja-html-macro",
  "kaja-web",
  "serde",
@@ -502,6 +513,20 @@ dependencies = [
  "uuid",
  "wasm-bindgen",
  "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
+name = "kaja-web-component"
+version = "0.1.0"
+dependencies = [
+ "gloo",
+ "inventory",
+ "js-sys",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+ "wasm-bindgen",
  "web-sys",
 ]
 

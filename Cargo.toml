@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "kaja-web"
 version = "1.0.2"

@@ -1,8 +1,7 @@
 pub use crate::{
     CallbackRegistration, Component, ComponentStorage, Error, InitComponentFn, InitFn, Result,
     get_callback, get_cookie_value, get_element, get_element_by_id, get_elements, get_value,
-    init_callbacks, inner_html, inner_text, set_value, try_get_value, try_inner_html,
-    try_inner_text,
+    init_callbacks, inner_html, inner_text, try_get_value, try_inner_html, try_inner_text,
 };
 
 pub use gloo::console::error;

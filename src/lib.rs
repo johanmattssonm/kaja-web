@@ -349,26 +349,6 @@ pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
     Some(html_element)
 }
 
-// Example: let count = get_value!(&id, Counter.field);
-#[macro_export]
-macro_rules! get_value {
-    ($id:expr, $component:ident $(:: $comp_rest:ident)* . $field:ident) => {{
-        let component = $crate::get_component::<$component $(:: $comp_rest)*>($id).unwrap();
-        let guard = component.lock().unwrap();
-        guard.$field.clone()
-    }};
-}
-
-// Example: let count = set_value!(&id, Counter.field, value);
-#[macro_export]
-macro_rules! set_value {
-    ($id:expr, $component:ident $(:: $comp_rest:ident)* . $field:ident, $value:expr) => {{
-        let component = $crate::get_component::<$component $(:: $comp_rest)*>($id).unwrap();
-        let mut guard = component.lock().unwrap();
-        guard.$field = $value;
-    }};
-}
-
 pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
     use js_sys::Array;
     use wasm_bindgen::JsValue;

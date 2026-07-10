@@ -1,0 +1,43 @@
+[package]
+authors = ["The wasm-bindgen Developers"]
+edition = "2021"
+name = "raytrace-parallel"
+publish = false
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+console_error_panic_hook = "0.1"
+futures-channel-preview = "0.3.0-alpha.18"
+js-sys = "0.3.103"
+serde-wasm-bindgen = "0.6"
+wasm-bindgen = "0.2.126"
+wasm-bindgen-futures = "0.4.76"
+
+web-sys = { version = "0.3.103", features = [
+  "ErrorEvent",
+  "Event",
+  "Navigator",
+  "Window",
+  "Worker",
+  "DedicatedWorkerGlobalScope",
+  "MessageEvent",
+  "Element",
+  "HtmlElement",
+  "NodeList",
+  "CustomElementRegistry",
+  "ElementDefinitionOptions"
+] }
+
+kaja-web = { path = "../.." }
+kaja-web-component = { path = "../../../kaja-web-component" }
+gloo = { version = "0.12", features = ["futures"] }
+kaja-html-macro = "1.0.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+uuid = { version = "1.23.2", features = ["js", "v4"] }
+inventory = "0.3.24"
+gloo-timers = { version = "0.4.0", features = ["futures"] }
+async-channel = "2"
