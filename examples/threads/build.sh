@@ -9,5 +9,3 @@ wasm-bindgen target/wasm32-unknown-unknown/debug/raytrace_parallel.wasm --target
 cp static/index.html ./pkg/
 cp static/worker.js ./pkg/
 cp static/index.js ./pkg/
-
-python3 server.py

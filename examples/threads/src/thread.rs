@@ -1,0 +1,81 @@
+// Silences warnings from the compiler about Work.func and child_entry_point
+// being unused when the target is not wasm.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+
+use std::cell::RefCell;
+use std::rc::Rc;
+use wasm_bindgen::prelude::*;
+use web_sys::{DedicatedWorkerGlobalScope, MessageEvent};
+use web_sys::{ErrorEvent, Event, Worker};
+
+struct Work {
+    func: Box<dyn FnOnce() + Send>,
+}
+
+fn spawn_worker() -> Result<Worker, JsValue> {
+    let worker = Worker::new("./worker.js")?;
+
+    // With a worker spun up send it the module/memory so it can start
+    // instantiating the Wasm module. Later it might receive further
+    // messages about code to run on the Wasm module.
+    let array = js_sys::Array::new();
+    array.push(&wasm_bindgen::module());
+    array.push(&wasm_bindgen::memory());
+    worker.post_message(&array)?;
+
+    Ok(worker)
+}
+
+/// Spawns a single standalone worker and runs `f` on it.
+pub fn spawn(f: impl FnOnce() + Send + 'static) -> Result<(), JsValue> {
+    let worker = spawn_worker()?;
+
+    let worker2 = worker.clone();
+    let completion_slot = Rc::new(RefCell::new(None));
+    let slot2 = completion_slot.clone();
+
+    let completion = Closure::<dyn FnMut(_)>::new(move |event: Event| {
+        if let Some(error) = event.dyn_ref::<ErrorEvent>() {
+            console_log!("error in standalone worker: {}", error.message());
+        } else if event.dyn_ref::<MessageEvent>().is_none() {
+            console_log!("unhandled event: {}", event.type_());
+            crate::logv(&event);
+        }
+
+        worker2.terminate();
+        worker2.set_onmessage(None);
+        worker2.set_onerror(None);
+        *slot2.borrow_mut() = None;
+    });
+
+    worker.set_onmessage(Some(completion.as_ref().unchecked_ref()));
+    worker.set_onerror(Some(completion.as_ref().unchecked_ref()));
+    *completion_slot.borrow_mut() = Some(completion);
+
+    let work = Box::new(Work { func: Box::new(f) });
+    let ptr = Box::into_raw(work);
+
+    match worker.post_message(&JsValue::from(ptr as u32)) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            unsafe {
+                drop(Box::from_raw(ptr));
+            }
+            worker.terminate();
+            worker.set_onmessage(None);
+            worker.set_onerror(None);
+            *completion_slot.borrow_mut() = None;
+            Err(e)
+        }
+    }
+}
+
+/// Entry point invoked by `worker.js`
+#[wasm_bindgen]
+pub fn child_entry_point(ptr: u32) -> Result<(), JsValue> {
+    let ptr = unsafe { Box::from_raw(ptr as *mut Work) };
+    let global = js_sys::global().unchecked_into::<DedicatedWorkerGlobalScope>();
+    (ptr.func)();
+    global.post_message(&JsValue::undefined())?;
+    Ok(())
+}
