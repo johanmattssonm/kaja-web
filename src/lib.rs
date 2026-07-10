@@ -17,9 +17,6 @@ inventory::collect!(InitFn);
 pub struct InitComponentFn(pub fn());
 inventory::collect!(InitComponentFn);
 
-pub struct UpdateComponentFn(pub fn(id: &str) -> bool);
-inventory::collect!(UpdateComponentFn);
-
 /// Global counter shared by all components created by the #[component] macro.
 /// The proc-macro-generated code will increment this to obtain a unique wasm id.
 pub static NEXT_COMPONENT_COUNTER: std::sync::atomic::AtomicU32 =
@@ -77,16 +74,6 @@ pub fn init_callbacks() {
 
     for init in inventory::iter::<InitComponentFn> {
         (init.0)();
-    }
-}
-
-pub fn update(id: &str) {
-    for init in inventory::iter::<UpdateComponentFn> {
-        let result = (init.0)(id);
-
-        if result {
-            return;
-        }
     }
 }
 
@@ -337,74 +324,18 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 
 /// HTML Component. See kaja-web-component.
 pub trait Component {
-    fn connected(&mut self, _parent: HtmlElement) {}
-    fn disconnected(&mut self, _parent: HtmlElement) {}
-    fn observed_attributes() -> &'static [&'static str] {
-        &[]
-    }
-
-    fn attribute_changed(
-        &mut self,
-        _parent: HtmlElement,
-        name: &str,
-        _old_value: &str,
-        _new_value: &str,
-    ) {
+    fn connected(id: &str) {}
+    fn disconnected(id: &str) {}
+    fn attribute_changed(id: &str, name: &str, _old_value: &str, _new_value: &str) {
         log!("Attribute changed but no update handler for ", name);
     }
-
-    /// Render the component into the given element.
-    fn render(&self, _element: &HtmlElement) {}
-}
-
-pub fn get_component_element(id: &str) -> Option<HtmlElement> {
-    let selector = format!("[componentid='{}']", id);
-    let element = get_element(selector.as_str());
-    element
+    fn update(id: &str) {}
 }
 
 pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
     let selector = format!("#{}", id);
     let element = get_element(selector.as_str());
     element
-}
-
-pub trait ComponentStorage: Sized {
-    fn storage() -> &'static RwLock<Option<HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>>;
-}
-
-/// Returns a cloned Arc pointing to the stored component. The component itself is
-/// protected by an `RwLock` so callers can lock it for mutable or shared access when needed.
-pub fn get_component<T: ComponentStorage + 'static>(
-    id: &str,
-) -> Option<std::sync::Arc<std::sync::Mutex<T>>> {
-    let map_lock = T::storage().read();
-
-    if map_lock.is_err() {
-        error!("Failed to take storage lock");
-        return None;
-    }
-
-    let store_opt = map_lock.unwrap();
-
-    if store_opt.is_none() {
-        error!("Store not initialized");
-        return None;
-    }
-
-    let map = store_opt.as_ref().unwrap();
-    map.get(id).cloned()
-}
-
-pub fn get_component_id(element: &HtmlElement) -> String {
-    let id = element.get_attribute("componentid");
-
-    if id.is_none() {
-        error!("No component id is set for element.");
-        return "".to_string();
-    }
-
-    id.unwrap()
 }
 
 // Example: let count = get_value!(&id, Counter.field);
@@ -425,24 +356,6 @@ macro_rules! set_value {
         let mut guard = component.lock().unwrap();
         guard.$field = $value;
     }};
-}
-
-pub fn rerender<T>(id: &str)
-where
-    T: ComponentStorage + Component + 'static,
-{
-    let component = get_component::<T>(id);
-    let binding = component.unwrap();
-    let component_binding = binding.lock().unwrap();
-    let html_element = get_component_element(id);
-
-    if html_element.is_none() {
-        error!("No html_element in rerender.");
-        return;
-    }
-
-    let element = html_element.unwrap();
-    component_binding.render(&element);
 }
 
 pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
