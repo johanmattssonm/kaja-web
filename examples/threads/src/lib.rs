@@ -14,16 +14,11 @@ extern "C" {
 }
 
 mod main_component;
-mod pool;
+mod thread;
 
 #[wasm_bindgen(start)]
 pub fn init() {
-    log!("Starting");
-
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_error_panic_hook::set_once();
-
-    log!("Init callbacks");
     init_callbacks();
-    log!("Init complete");
 }

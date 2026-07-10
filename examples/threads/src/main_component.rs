@@ -28,7 +28,6 @@ impl Component for Main {
         };
 
         let mut component = handle.lock().unwrap();
-        component.test = !component.test;
         component.render(&element);
     }
 }
@@ -42,14 +41,25 @@ impl Main {
 fn start_background_thread(id: &str) {
     let component_id = id.to_string();
 
-    c   rate::thread::spawn(move || {
+    crate::thread::spawn(move || {
         loop {
+            let Some(handle) = Main::get_component(&component_id) else {
+                error!("Main component not found:", &component_id);
+                break;
+            };
+
+            let mut component = handle.lock().unwrap();
+            component.test = !component.test;
+
             Main::post_ui_thread_update(component_id.as_str());
             std::thread::sleep(Duration::from_millis(1000));
 
             // this a background thread, so:
             // try_inner_html("#test", "<b>INNER_HTML</b>");
             // will not update the DOM. Only the UI thread can do that.
+            //
+            // Run post_ui_thread_update to schedule a UI thread update
+            // using the Component::update method.
         }
     });
 }

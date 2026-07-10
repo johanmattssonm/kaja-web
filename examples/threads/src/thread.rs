@@ -15,9 +15,9 @@ struct Work {
 fn spawn_worker() -> Result<Worker, JsValue> {
     let worker = Worker::new("./worker.js")?;
 
-    // With a worker spun up send it the module/memory so it can start
-    // instantiating the Wasm module. Later it might receive further
-    // messages about code to run on the Wasm module.
+    // A worker spun up send it the module and memory so it can start
+    // instantiating the Wasm module.
+
     let array = js_sys::Array::new();
     array.push(&wasm_bindgen::module());
     array.push(&wasm_bindgen::memory());
@@ -72,7 +72,7 @@ pub fn spawn(f: impl FnOnce() + Send + 'static) -> Result<(), JsValue> {
 
 /// Entry point invoked by `worker.js`
 #[wasm_bindgen]
-pub fn child_entry_point(ptr: u32) -> Result<(), JsValue> {
+pub fn init_thread_runner(ptr: u32) -> Result<(), JsValue> {
     let ptr = unsafe { Box::from_raw(ptr as *mut Work) };
     let global = js_sys::global().unchecked_into::<DedicatedWorkerGlobalScope>();
     (ptr.func)();
