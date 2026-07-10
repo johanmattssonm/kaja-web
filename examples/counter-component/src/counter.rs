@@ -1,4 +1,4 @@
-use kaja_web::prelude::*;
+euse kaja_web::prelude::*;
 
 #[component("counter-component")]
 pub struct Counter {

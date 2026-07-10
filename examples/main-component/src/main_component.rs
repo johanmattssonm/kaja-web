@@ -1,9 +1,4 @@
-use crate::log;
-use async_channel::{Receiver, Sender};
-use std::collections::HashMap;
-use std::sync::{Arc, LazyLock, Mutex, OnceLock, RwLock};
-use wasm_bindgen::JsCast;
-use wasm_bindgen::prelude::*;
+use kaja_web::prelude::*;
 
 #[component("main-component")]
 struct Main {
@@ -15,33 +10,44 @@ struct Other {
     the_number: i32,
 }
 
+impl Component for Other {}
+
 impl Component for Main {
     fn connected(id: &str) {
-        #[cfg(feature = "threads")]
-        start_background(id);
+        log!("Main connected:", id);
+        start_background(&id);
     }
 
     fn update(id: &str) {
         log!("Main ui_thread_update:", id);
-        let handle = Self::get_component_arc(id);
-        let mut component = handle.lock().unwrap();
 
+        let Some(handle) = Self::get_component(id) else {
+            error!("Main component not found:", id);
+            return;
+        };
+
+        let Some(element) = get_element_by_id("2") else {
+            error!("Element 2 not found:");
+            return;
+        };
+
+        log!("Element 2 found");
+
+        let Some(element) = get_element_by_id(id) else {
+            error!("Element not found:", id);
+            return;
+        };
+
+        let mut component = handle.lock().unwrap();
         component.test = !component.test;
-        component.render(id);
+        component.render(&element);
     }
 }
 
 impl Main {
-    fn render(&self, id: &str) {
+    fn render(&self, element: &HtmlElement) {
         log!("Render Main", self.test);
-        let element = get_element_by_id(id);
-        element.inner_text(&self.test.to_string());
-    }
-}
-
-impl Component for Other {
-    fn ui_thread_update(id: &str) {
-        log!("Other update:", id);
+        element.set_inner_text(&self.test.to_string());
     }
 }
 
@@ -51,7 +57,7 @@ fn start_background(id: &str) {
 
     wasm_bindgen_futures::spawn_local(async move {
         loop {
-            post_ui_thread_update(component_id.as_str()); // await?
+            Main::post_ui_thread_update(component_id.as_str());
             gloo_timers::future::TimeoutFuture::new(1000).await;
         }
     });
@@ -63,7 +69,7 @@ fn start_background(id: &str) {
 
     std::thread::spawn(move || {
         loop {
-            post_ui_thread_update(component_id.as_str());
+            Main::post_ui_thread_update(component_id.as_str());
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     });

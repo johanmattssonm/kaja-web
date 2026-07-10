@@ -8,5 +8,5 @@ wasm-pack build \
     --out-name componentexample
 
 cp index.html pkg/
-cp main.js pkg/
+cp loader.js pkg/
 cp styles.css pkg/

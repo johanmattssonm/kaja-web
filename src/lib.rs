@@ -9,8 +9,6 @@ use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
 pub mod prelude;
 
-use prelude::*;
-
 pub struct InitFn(pub fn());
 inventory::collect!(InitFn);
 
@@ -40,6 +38,12 @@ pub struct CallbackRegistration {
 }
 
 inventory::collect!(CallbackRegistration);
+
+pub trait ComponentStorage: Default + Sized {
+    fn storage() -> &'static std::sync::RwLock<
+        Option<std::collections::HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>,
+    >;
+}
 
 /// Register callbacks that can be used in JS to run Rust functions in the WASM
 /// module. This needs to run when the WASM bundle is loaded.
@@ -72,7 +76,9 @@ pub fn init_callbacks() {
         (init.0)();
     }
 
+    log!("Init component fn kaja-web");
     for init in inventory::iter::<InitComponentFn> {
+        log!("Run init component fn");
         (init.0)();
     }
 }
@@ -323,19 +329,24 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 }
 
 /// HTML Component. See kaja-web-component.
-pub trait Component {
-    fn connected(id: &str) {}
-    fn disconnected(id: &str) {}
-    fn attribute_changed(id: &str, name: &str, _old_value: &str, _new_value: &str) {
-        log!("Attribute changed but no update handler for ", name);
+pub trait Component: Default {
+    fn connected(_id: &str) {}
+    fn disconnected(_id: &str) {}
+    fn observed_attributes() -> &'static [&'static str] {
+        &[]
     }
-    fn update(id: &str) {}
+    fn attribute_changed(id: &str, name: &str, _old_value: &str, _new_value: &str) {
+        log!("Attribute changed but no update handler for ", id, name);
+    }
+    fn update(_id: &str) {}
 }
 
 pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
-    let selector = format!("#{}", id);
-    let element = get_element(selector.as_str());
-    element
+    let window = web_sys::window().ok_or(Error).ok()?;
+    let document = window.document().ok_or(Error).ok()?;
+    let element = document.get_element_by_id(id)?;
+    let html_element = element.dyn_into::<HtmlElement>().ok()?;
+    Some(html_element)
 }
 
 // Example: let count = get_value!(&id, Counter.field);
