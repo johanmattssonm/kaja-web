@@ -15,7 +15,7 @@ struct Work {
 fn spawn_worker() -> Result<Worker, JsValue> {
     let worker = Worker::new("./worker.js")?;
 
-    // A worker spun up send it the module and memory so it can start
+    // When a worker is spun up send it the module and memory so it can start
     // instantiating the Wasm module.
 
     let array = js_sys::Array::new();
