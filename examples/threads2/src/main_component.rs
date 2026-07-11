@@ -1,15 +1,19 @@
 use arc_swap::ArcSwap;
 use kaja_web::prelude::*;
+use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::LazyLock;
 use std::sync::RwLock;
 use std::time::Duration;
 
 static THREAD_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+static THREAD_COMPONENT_MAP: LazyLock<RwLock<HashMap<String, ThreadComponent>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
 
 struct ThreadComponent {
     id: u32,
-    ui: Arc<ArcSwap<Main>>, // read only for foreground
-    bg: Arc<RwLock<Main>>,  // read/write in background with mutex
+    ui: Arc<ArcSwap<Main>>, // read only for use in ui foreground thread
+    bg: Arc<RwLock<Main>>,  // read/write in background thread with mutex
 }
 
 impl ThreadComponent {
@@ -21,14 +25,20 @@ impl ThreadComponent {
         }
     }
 
-    fn new(component: Main) -> Self {
+    fn new(component: Main, component_id: &str) -> Self {
         let bg = component.clone();
 
-        Self {
+        let thread_component = Self {
             id: THREAD_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             ui: Arc::new(ArcSwap::from_pointee(component)),
             bg: Arc::new(RwLock::new(bg)),
-        }
+        };
+
+        THREAD_COMPONENT_MAP
+            .write()
+            .unwrap()
+            .insert(component_id.to_string(), thread_component.shallow_clone());
+        thread_component
     }
 
     fn lock_component<F>(&self, f: F)
@@ -45,7 +55,7 @@ fn start_background_threads(id: &str) {
     let handle = Main::get_component(id).expect("Component not found");
     let component = handle.lock().unwrap().clone();
 
-    let thread_component = ThreadComponent::new(component);
+    let thread_component = ThreadComponent::new(component, id);
 
     start_background_thread(thread_component.shallow_clone(), id.to_string());
     start_background_thread(thread_component.shallow_clone(), id.to_string());
@@ -87,17 +97,22 @@ impl Component for Main {
             id
         );
 
-        let Some(handle) = Self::get_component(id) else {
-            error!("Main component not found:", id);
-            return;
-        };
-
         let Some(element) = get_element_by_id(id) else {
             error!("Element not found:", id);
             return;
         };
 
-        let component = handle.lock().unwrap();
+        let component = {
+            let map = THREAD_COMPONENT_MAP.read().unwrap();
+            let Some(thread_component) = map.get(id) else {
+                error!("Thread component not found:", id);
+                return;
+            };
+
+            thread_component.ui.load_full()
+        };
+
+        log!("Rendering component, loaded read only:", id);
         component.render(&element);
     }
 }
