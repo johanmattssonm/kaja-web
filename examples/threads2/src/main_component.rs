@@ -1,14 +1,16 @@
 use arc_swap::ArcSwap;
 use kaja_web::prelude::*;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::LazyLock;
 use std::sync::RwLock;
 use std::time::Duration;
 
 static THREAD_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
-static THREAD_COMPONENT_MAP: LazyLock<RwLock<HashMap<String, ThreadComponent>>> =
-    LazyLock::new(|| RwLock::new(HashMap::new()));
+std::thread_local! {
+    static THREAD_COMPONENT_MAP: RefCell<HashMap<String, ThreadComponent>> =
+        RefCell::new(HashMap::new());
+}
 
 struct ThreadComponent {
     id: u32,
@@ -34,10 +36,10 @@ impl ThreadComponent {
             bg: Arc::new(RwLock::new(bg)),
         };
 
-        THREAD_COMPONENT_MAP
-            .write()
-            .unwrap()
-            .insert(component_id.to_string(), thread_component.shallow_clone());
+        THREAD_COMPONENT_MAP.with(|map| {
+            map.borrow_mut()
+                .insert(component_id.to_string(), thread_component.shallow_clone());
+        });
         thread_component
     }
 
@@ -124,19 +126,25 @@ impl Component for Main {
             return;
         };
 
-        let map = THREAD_COMPONENT_MAP.read().unwrap();
+        let Some(component) = THREAD_COMPONENT_MAP.with(|map| {
+            let map = map.borrow();
 
-        let Some(thread_component) = map.get(id) else {
+            let Some(thread_component) = map.get(id) else {
+                return None;
+            };
+
+            let component = thread_component.ui.load_full();
+
+            thread_component.async_update(|component| {
+                component.test = !component.test;
+                component.test_message = "test message".to_string();
+            });
+
+            Some(component)
+        }) else {
             error!("Thread component not found:", id);
             return;
         };
-
-        let component = thread_component.ui.load_full();
-
-        thread_component.async_update(|component| {
-            component.test = !component.test;
-            component.test_message = "test message".to_string();
-        });
 
         log!("Rendering component, loaded read only:", id);
         component.render(&element);
