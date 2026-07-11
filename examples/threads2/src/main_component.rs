@@ -45,20 +45,41 @@ impl ThreadComponent {
     where
         F: FnOnce(&mut Main),
     {
+        assert!(
+            web_sys::window().is_none(),
+            "lock_component can not be called from the wasm UI thread, only from the background thread because the ui thread is not allowed to wait on locks"
+        );
+
         let mut bg = self.bg.write().unwrap();
         f(&mut bg);
         self.ui.store(Arc::new((*bg).clone()));
     }
+
+    fn async_update(&self, f: impl FnOnce(&mut Main)) {
+        assert!(
+            web_sys::window().is_some(),
+            "async_update must be called from the wasm UI thread, use lock_component instead when you need to update the component from the background thread"
+        );
+    }
 }
+
+fn sync_and_update(thread_component: ThreadComponent, component_id: String) {}
 
 fn start_background_threads(id: &str) {
     let handle = Main::get_component(id).expect("Component not found");
     let component = handle.lock().unwrap().clone();
 
     let thread_component = ThreadComponent::new(component, id);
+    start_background_updater(thread_component.shallow_clone(), id.to_string());
 
     start_background_thread(thread_component.shallow_clone(), id.to_string());
     start_background_thread(thread_component.shallow_clone(), id.to_string());
+}
+
+fn start_background_updater(thread_component: ThreadComponent, component_id: String) {
+    let _ = crate::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(1000));
+    });
 }
 
 fn start_background_thread(thread_component: ThreadComponent, component_id: String) {
@@ -84,6 +105,7 @@ fn start_background_thread(thread_component: ThreadComponent, component_id: Stri
 #[component("main-component")]
 struct Main {
     test: bool,
+    test_message: String,
 }
 
 impl Component for Main {
@@ -102,15 +124,19 @@ impl Component for Main {
             return;
         };
 
-        let component = {
-            let map = THREAD_COMPONENT_MAP.read().unwrap();
-            let Some(thread_component) = map.get(id) else {
-                error!("Thread component not found:", id);
-                return;
-            };
+        let map = THREAD_COMPONENT_MAP.read().unwrap();
 
-            thread_component.ui.load_full()
+        let Some(thread_component) = map.get(id) else {
+            error!("Thread component not found:", id);
+            return;
         };
+
+        let component = thread_component.ui.load_full();
+
+        thread_component.async_update(|component| {
+            component.test = !component.test;
+            component.test_message = "test message".to_string();
+        });
 
         log!("Rendering component, loaded read only:", id);
         component.render(&element);
