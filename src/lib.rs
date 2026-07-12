@@ -53,14 +53,6 @@ pub trait ComponentStorage: Default + Sized {
     >;
 }
 
-pub fn update_shared_component<T: Clone, F>(handle: &SharedComponent<T>, updater: F)
-where
-    F: FnOnce(&mut T),
-{
-    let mut component = handle.borrow_mut();
-    updater(&mut component);
-}
-
 pub fn dispatch_component_update(component: &str, id: &str) -> bool {
     for update in inventory::iter::<UpdateComponentFn> {
         if update.component == component {
