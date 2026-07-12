@@ -15,7 +15,7 @@ gloo = "0.12.0"
 gloo-console = "0.4.0"
 kaja-html-macro = "1.0.3"
 wasm-bindgen = "0.2.122"
-web-sys = { version = "0.3.99", features = ["Document", "HtmlDocument", "Element", "HtmlElement", "HtmlInputElement", "NodeList", "CssStyleDeclaration", "DomTokenList"] }
+web-sys = { version = "0.3.99", features = ["Document", "HtmlDocument", "Element", "HtmlElement", "HtmlInputElement", "NodeList", "CssStyleDeclaration", "DomTokenList", "MessageEvent"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.5"
 inventory = "0.3.24"

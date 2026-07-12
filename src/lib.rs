@@ -17,6 +17,12 @@ inventory::collect!(InitFn);
 pub struct InitComponentFn(pub fn());
 inventory::collect!(InitComponentFn);
 
+pub struct UpdateComponentFn {
+    pub component: &'static str,
+    pub dispatch: fn(&str),
+}
+inventory::collect!(UpdateComponentFn);
+
 /// Global counter shared by all components created by the #[component] macro.
 /// The proc-macro-generated code will increment this to obtain a unique wasm id.
 pub static NEXT_COMPONENT_COUNTER: std::sync::atomic::AtomicU32 =
@@ -60,6 +66,50 @@ where
     let next = std::sync::Arc::new(next);
     handle.store(next.clone());
     next
+}
+
+pub fn dispatch_component_update(component: &str, id: &str) -> bool {
+    for update in inventory::iter::<UpdateComponentFn> {
+        if update.component == component {
+            (update.dispatch)(id);
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn try_handle_component_update_message(event: &web_sys::MessageEvent) -> bool {
+    let Ok(message) = event.data().dyn_into::<js_sys::Array>() else {
+        return false;
+    };
+
+    if message.length() != 3 {
+        return false;
+    }
+
+    if message.get(0).as_string().as_deref() != Some("__kaja_component_update__") {
+        return false;
+    }
+
+    let Some(component) = message.get(1).as_string() else {
+        error!("Invalid component update message: missing component name.");
+        return true;
+    };
+
+    let Some(id) = message.get(2).as_string() else {
+        error!(
+            "Invalid component update message: missing component id.",
+            component
+        );
+        return true;
+    };
+
+    if !dispatch_component_update(&component, &id) {
+        error!("Component update handler not found.", component, id);
+    }
+
+    true
 }
 
 /// Register callbacks that can be used in JS to run Rust functions in the WASM

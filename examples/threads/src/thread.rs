@@ -37,7 +37,22 @@ pub fn spawn(f: impl FnOnce() + Send + 'static) -> Result<(), JsValue> {
     let completion = Closure::<dyn FnMut(_)>::new(move |event: Event| {
         if let Some(error) = event.dyn_ref::<ErrorEvent>() {
             console_log!("error in standalone worker: {}", error.message());
-        } else if event.dyn_ref::<MessageEvent>().is_none() {
+        } else if let Some(message) = event.dyn_ref::<MessageEvent>() {
+            if kaja_web::try_handle_component_update_message(message) {
+                return;
+            }
+
+            if message.data().is_undefined() {
+                worker2.terminate();
+                worker2.set_onmessage(None);
+                worker2.set_onerror(None);
+                *slot2.borrow_mut() = None;
+                return;
+            }
+
+            console_log!("unhandled message from standalone worker");
+            crate::logv(&message.data());
+        } else {
             console_log!("unhandled event: {}", event.type_());
             crate::logv(&event);
         }
