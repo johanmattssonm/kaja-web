@@ -36,7 +36,8 @@ impl Component for Main {
             component.test = !component.test;
         });
 
-        component.render(&element);
+        let comp = handle.borrow();
+        comp.render(&element);
     }
 }
 
@@ -52,7 +53,7 @@ fn start_background(id: &str) {
 
     wasm_bindgen_futures::spawn_local(async move {
         loop {
-            Main::post_ui_thread_update(component_id.as_str());
+            Main::update(component_id.as_str());
             gloo_timers::future::TimeoutFuture::new(1000).await;
         }
     });

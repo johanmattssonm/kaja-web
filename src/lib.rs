@@ -7,7 +7,7 @@ use gloo_console::{error, log};
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
-pub use arc_swap::ArcSwap;
+pub type SharedComponent<T> = std::rc::Rc<std::cell::RefCell<T>>;
 
 pub mod prelude;
 
@@ -49,23 +49,16 @@ inventory::collect!(CallbackRegistration);
 
 pub trait ComponentStorage: Default + Sized {
     fn storage() -> &'static std::thread::LocalKey<
-        std::cell::RefCell<std::collections::HashMap<String, std::sync::Arc<ArcSwap<Self>>>>,
+        std::cell::RefCell<std::collections::HashMap<String, SharedComponent<Self>>>,
     >;
 }
 
-pub fn update_shared_component<T: Clone, F>(
-    handle: &std::sync::Arc<ArcSwap<T>>,
-    updater: F,
-) -> std::sync::Arc<T>
+pub fn update_shared_component<T: Clone, F>(handle: &SharedComponent<T>, updater: F)
 where
     F: FnOnce(&mut T),
 {
-    let mut next = (*handle.load_full()).clone();
-    updater(&mut next);
-
-    let next = std::sync::Arc::new(next);
-    handle.store(next.clone());
-    next
+    let mut component = handle.borrow_mut();
+    updater(&mut component);
 }
 
 pub fn dispatch_component_update(component: &str, id: &str) -> bool {
