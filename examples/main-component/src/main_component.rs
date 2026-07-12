@@ -1,5 +1,6 @@
 use kaja_web::prelude::*;
 
+#[derive(Clone)]
 #[component("main-component")]
 struct Main {
     test: bool,
@@ -21,18 +22,20 @@ impl Component for Main {
     fn update(id: &str) {
         log!("Main update:", id);
 
-        let Some(handle) = Self::get_component(id) else {
-            error!("Main component not found:", id);
-            return;
-        };
-
         let Some(element) = get_element_by_id(id) else {
             error!("Element not found:", id);
             return;
         };
 
-        let mut component = handle.lock().unwrap();
-        component.test = !component.test;
+        let Some(handle) = Self::get_component(id) else {
+            error!("Main component not found:", id);
+            return;
+        };
+
+        let component = update_shared_component(&handle, |component| {
+            component.test = !component.test;
+        });
+
         component.render(&element);
     }
 }

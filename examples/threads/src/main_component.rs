@@ -1,6 +1,7 @@
 use kaja_web::prelude::*;
 use std::time::Duration;
 
+#[derive(Clone)]
 #[component("main-component")]
 struct Main {
     test: bool,
@@ -17,17 +18,16 @@ impl Component for Main {
             id
         );
 
-        let Some(handle) = Self::get_component(id) else {
-            error!("Main component not found:", id);
-            return;
-        };
-
         let Some(element) = get_element_by_id(id) else {
             error!("Element not found:", id);
             return;
         };
 
-        let mut component = handle.lock().unwrap();
+        let Some(component) = Self::read_component(id) else {
+            error!("Main component not found:", id);
+            return;
+        };
+
         component.render(&element);
     }
 }
@@ -40,16 +40,16 @@ impl Main {
 
 fn start_background_thread(id: &str) {
     let component_id = id.to_string();
+    let Some(handle) = Main::get_component(id) else {
+        error!("Main component not found:", id);
+        return;
+    };
 
-    crate::thread::spawn(move || {
+    let _ = crate::thread::spawn(move || {
         loop {
-            let Some(handle) = Main::get_component(&component_id) else {
-                error!("Main component not found:", &component_id);
-                break;
-            };
-
-            let mut component = handle.lock().unwrap();
-            component.test = !component.test;
+            update_shared_component(&handle, |component| {
+                component.test = !component.test;
+            });
 
             Main::post_ui_thread_update(component_id.as_str());
             std::thread::sleep(Duration::from_millis(1000));

@@ -7,6 +7,7 @@ use std::sync::RwLock;
 use std::time::Duration;
 
 static THREAD_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+
 std::thread_local! {
     static THREAD_COMPONENT_MAP: RefCell<HashMap<String, ThreadComponent>> =
         RefCell::new(HashMap::new());
@@ -68,8 +69,9 @@ impl ThreadComponent {
 fn sync_and_update(thread_component: ThreadComponent, component_id: String) {}
 
 fn start_background_threads(id: &str) {
+    gloo::console::warn!("start_background_threads:", id);
     let handle = Main::get_component(id).expect("Component not found");
-    let component = handle.lock().unwrap().clone();
+    let component = (*handle.load_full()).clone();
 
     let thread_component = ThreadComponent::new(component, id);
     start_background_updater(thread_component.shallow_clone(), id.to_string());

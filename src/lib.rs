@@ -7,6 +7,8 @@ use gloo_console::{error, log};
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
 
+pub use arc_swap::ArcSwap;
+
 pub mod prelude;
 
 pub struct InitFn(pub fn());
@@ -40,9 +42,24 @@ pub struct CallbackRegistration {
 inventory::collect!(CallbackRegistration);
 
 pub trait ComponentStorage: Default + Sized {
-    fn storage() -> &'static std::sync::RwLock<
-        Option<std::collections::HashMap<String, std::sync::Arc<std::sync::Mutex<Self>>>>,
+    fn storage() -> &'static std::thread::LocalKey<
+        std::cell::RefCell<std::collections::HashMap<String, std::sync::Arc<ArcSwap<Self>>>>,
     >;
+}
+
+pub fn update_shared_component<T: Clone, F>(
+    handle: &std::sync::Arc<ArcSwap<T>>,
+    updater: F,
+) -> std::sync::Arc<T>
+where
+    F: FnOnce(&mut T),
+{
+    let mut next = (*handle.load_full()).clone();
+    updater(&mut next);
+
+    let next = std::sync::Arc::new(next);
+    handle.store(next.clone());
+    next
 }
 
 /// Register callbacks that can be used in JS to run Rust functions in the WASM

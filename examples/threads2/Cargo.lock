@@ -501,6 +501,7 @@ dependencies = [
 name = "kaja-web"
 version = "1.0.2"
 dependencies = [
+ "arc-swap",
  "gloo",
  "gloo-console",
  "inventory",
