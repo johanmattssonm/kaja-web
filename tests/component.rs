@@ -66,7 +66,7 @@ fn test_attribute_updated() {
     setup_test();
 
     let content = html! {{
-        <test-component1 id="custom-id" test-attribute="initial-value"></test-component1>
+        <test-component1 id="custom-id" test_attribute="initial-value"></test-component1>
     }};
 
     try_inner_html("#test-div", &content);
@@ -83,7 +83,7 @@ fn test_attribute_updated() {
     }
 
     element
-        .set_attribute("test-attribute", "updated-value")
+        .set_attribute("test_attribute", "updated-value")
         .unwrap();
 
     {
@@ -95,11 +95,72 @@ fn test_attribute_updated() {
     }
 }
 
+#[wasm_bindgen_test]
+fn test_getter_and_setter() {
+    setup_test();
+
+    let content = html! {{
+        <test-component1 id="test-get-set-id" test_attribute="initial-value-for-attribute"></test-component1>
+    }};
+
+    try_inner_html("#test-div", &content);
+
+    let id = "test-get-set-id";
+
+    {
+        let component = TestComponent1::get_component(id).unwrap();
+        let test_component = component.borrow();
+
+        assert_eq!(test_component.test_attribute, "initial-value-for-attribute");
+    }
+
+    {
+        // borrows again
+        let res = TestComponent1::set_test_attribute(id, "updated-value-in-component".to_string());
+        assert!(res.is_ok());
+    }
+
+    let test_attribute_from_getter = TestComponent1::get_test_attribute(id).unwrap();
+    assert_eq!(test_attribute_from_getter, "updated-value-in-component");
+}
+
 #[component("test-component1")]
 struct TestComponent1 {
     tested: bool,
     attribute_updated: bool,
+
+    //#[attribute]
     test_attribute: String,
+}
+
+impl TestComponent1 {
+    fn set_test_attribute(id: &str, value: String) -> Result<()> {
+        let attribute_name = "test_attribute";
+        let attribute_string = value.clone();
+
+        let element = get_element_by_id(id).ok_or(Error)?;
+
+        {
+            let component = Self::get_component(id).ok_or(Error)?;
+            let mut component = component.try_borrow_mut().map_err(|_| Error)?;
+
+            component.test_attribute = value;
+        }
+
+        element
+            .set_attribute(attribute_name, &attribute_string)
+            .map_err(|_| Error)
+    }
+
+    fn observed_attributes() -> &'static [&'static str] {
+        &["test_attribute"]
+    }
+
+    fn get_test_attribute(id: &str) -> Option<String> {
+        let component = Self::get_component(id)?;
+        let test_attribute = component.borrow().test_attribute.clone();
+        Some(test_attribute)
+    }
 }
 
 impl Component for TestComponent1 {
@@ -110,7 +171,7 @@ impl Component for TestComponent1 {
     }
 
     fn observed_attributes() -> &'static [&'static str] {
-        &["test-attribute"]
+        &["test_attribute"]
     }
 
     fn attribute_changed(id: &str, name: &str, _old_value: &str, new_value: &str) {
