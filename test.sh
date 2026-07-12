@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-wasm-pack test --chrome
+wasm-pack test --chrome --test alltests

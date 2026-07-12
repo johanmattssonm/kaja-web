@@ -301,6 +301,7 @@ pub fn get_cookie_value(name: &str) -> Option<String> {
             }
         }
     }
+
     None
 }
 
