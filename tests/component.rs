@@ -49,15 +49,15 @@ fn test_custom_id() {
     setup_test();
 
     let content = html! {{
-        <test-component2 id="custom-id"></test-component2>
+        <test-component1 id="custom-id"></test-component1>
     }};
 
     try_inner_html("#test-div", &content);
 
-    let element = get_element("test-component2").unwrap();
+    let element = get_element("test-component1").unwrap();
     assert_eq!(element.id(), "custom-id");
 
-    let component = TestComponent2::get_component("custom-id").unwrap();
+    let component = TestComponent1::get_component("custom-id").unwrap();
     let test_component = component.borrow();
     assert!(test_component.tested);
 }
@@ -70,20 +70,6 @@ struct TestComponent1 {
 impl Component for TestComponent1 {
     fn connected(id: &str) {
         let component = TestComponent1::get_component(id).unwrap();
-        let mut test_component = component.borrow_mut();
-        test_component.tested = true;
-    }
-}
-
-#[component("test-component2")]
-struct TestComponent2 {
-    tested: bool,
-}
-
-impl Component for TestComponent2 {
-    fn connected(id: &str) {
-        log!("connected TestComponent2:", id);
-        let component = TestComponent2::get_component(id).unwrap();
         let mut test_component = component.borrow_mut();
         test_component.tested = true;
     }
