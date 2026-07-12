@@ -1,31 +1,13 @@
+#[path = "common.rs"]
+mod common;
+
 use kaja_web::prelude::*;
 use kaja_web_component::component;
 use wasm_bindgen_test::*;
-use web_sys::HtmlElement;
-
-fn setup_test() {
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
-    let body = document.body().unwrap();
-
-    let test_div = document.get_element_by_id("test-div");
-
-    if test_div.is_some() {
-        let test_div = test_div.unwrap().unchecked_into::<HtmlElement>();
-        test_div.set_inner_html("");
-        return;
-    }
-
-    let test_div = document.create_element("div").unwrap();
-    test_div.set_id("test-div");
-    body.append_child(&test_div).unwrap();
-
-    init_callbacks();
-}
 
 #[wasm_bindgen_test]
 fn test_component() {
-    setup_test();
+    common::setup_test();
 
     let content = html! {{
         <test-component1></test-component1>
@@ -45,7 +27,7 @@ fn test_component() {
 
 #[wasm_bindgen_test]
 fn test_custom_id() {
-    setup_test();
+    common::setup_test();
 
     let content = html! {{
         <test-component1 id="custom-id"></test-component1>
@@ -63,7 +45,7 @@ fn test_custom_id() {
 
 #[wasm_bindgen_test]
 fn test_attribute_updated() {
-    setup_test();
+    common::setup_test();
 
     let content = html! {{
         <test-component1 id="custom-id" test_attribute="initial-value"></test-component1>
@@ -97,7 +79,7 @@ fn test_attribute_updated() {
 
 #[wasm_bindgen_test]
 fn test_getter_and_setter() {
-    setup_test();
+    common::setup_test();
 
     let content = html! {{
         <test-component1 id="test-get-set-id" test_attribute="initial-value-for-attribute"></test-component1>
@@ -129,7 +111,7 @@ struct TestComponent1 {
     tested: bool,
     attribute_updated: bool,
 
-    //#[attribute]
+    //#[html_attribute]
     test_attribute: String,
 }
 
@@ -147,19 +129,19 @@ impl TestComponent1 {
             component.test_attribute = value;
         }
 
-        element
+        return element
             .set_attribute(attribute_name, &attribute_string)
-            .map_err(|_| Error)
-    }
-
-    fn observed_attributes() -> &'static [&'static str] {
-        &["test_attribute"]
+            .map_err(|_| Error);
     }
 
     fn get_test_attribute(id: &str) -> Option<String> {
         let component = Self::get_component(id)?;
         let test_attribute = component.borrow().test_attribute.clone();
         Some(test_attribute)
+    }
+
+    fn observed_attributes() -> &'static [&'static str] {
+        &["test_attribute"]
     }
 }
 
