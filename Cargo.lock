@@ -430,9 +430,9 @@ dependencies = [
 
 [[package]]
 name = "kaja-html-macro"
-version = "1.0.3"
+version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46133dd45e19d67a03f37f98e356c3851845cec889434a6f928c1403f6abac02"
+checksum = "a5c37d76721e795460d8ba194309f8c989a64a66dc79118de9dccc083e5fe9db"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
