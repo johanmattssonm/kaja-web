@@ -5,7 +5,5 @@ pub use common::setup_test;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-//mod attributes;
-//mod component;
 mod componentref;
-//mod simple;
+mod simple;
