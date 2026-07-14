@@ -383,15 +383,11 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
 
 /// HTML Component. See kaja-web-component.
 pub trait Component: Default {
-    fn connected(_id: &str) {}
-    fn disconnected(_id: &str) {}
-    fn observed_attributes() -> &'static [&'static str] {
-        &[]
+    fn connected(&self) {}
+    fn disconnected(&self) {}
+    fn attribute_changed(&self, name: &str, _old_value: &str, _new_value: &str) {
+        log!("Attribute changed but no update handler for ", name);
     }
-    fn attribute_changed(id: &str, name: &str, _old_value: &str, _new_value: &str) {
-        log!("Attribute changed but no update handler for ", id, name);
-    }
-    fn update(_id: &str) {}
 }
 
 pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
