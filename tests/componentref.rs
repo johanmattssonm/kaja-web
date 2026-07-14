@@ -11,40 +11,35 @@ fn test_new_component() {
 
     let id = "test-id-for-component";
     let content = html! {{
-        <test-get-set-id id="$id" test_attribute="initial-value-for-attribute"></test-get-set-id>
+        <test-get-set-id id="$id" number="1" test_attribute="initial-value-for-attribute"></test-get-set-id>
     }};
 
     inner_html("#test-div", &content).unwrap();
 
     let component = Test2Component::get_component(id).expect("Component not found in global store");
+
     let attr = component.get_attribute_string("number").unwrap();
-    assert_eq!(attr, "42");
+    assert_eq!(attr, "1");
 
     let typed_attr: i32 = component.get_attribute("number").unwrap();
-    assert_eq!(typed_attr, 42);
+    assert_eq!(typed_attr, 1);
+
+    let _ = component.set_attribute("number", "100");
+    let attr = component.get_attribute_string("number").unwrap();
+    assert_eq!(attr, "100");
+
+    let typed_attr = component.get_attribute::<i32>("number").unwrap();
+    assert_eq!(typed_attr, 100);
+
+    let _ = component.set_attribute("number", "SOMETHING_NOT_i32"); // NAN
+
+    let attr = component.get_attribute_string("number").unwrap();
+    assert_eq!(attr, "100");
+
+    let typed_attr: i32 = component.get_attribute("number").unwrap();
+    assert_eq!(typed_attr, 100);
 
     {
-        component.set_attribute("number", "100");
-        let attr = component.get_attribute_string("number").unwrap();
-        assert_eq!(attr, "100");
-
-        let typed_attr = component.get_attribute::<i32>("number").unwrap();
-        assert_eq!(typed_attr, 100);
-
-        let test2_inner = component.get_attributes();
-        let test2 = test2_inner.borrow();
-        log!("test2 number:", test2.number);
-    }
-
-    component.set_attribute("number", "SOMETHING_NOT_i32"); // NAN
-
-    {
-        let attr = component.get_attribute_string("number").unwrap();
-        assert_eq!(attr, "100");
-
-        let typed_attr: i32 = component.get_attribute("number").unwrap();
-        assert_eq!(typed_attr, 100);
-
         let test2_inner = component.get_attributes();
         let test2 = test2_inner.borrow();
         log!("test2 number:", test2.number);
@@ -61,11 +56,6 @@ impl Component for Test2Component {
     fn connected(&self) {
         log!("Connected:", self.get_id());
         log!("Set number");
-
-        let id = self.get_id();
-        let element = get_element_by_id(&id).unwrap();
-        let res = element.set_attribute("number", "42");
-        assert!(res.is_ok());
     }
 
     fn disconnected(&self) {
