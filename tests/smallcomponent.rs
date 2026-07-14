@@ -29,5 +29,20 @@ fn test_small_component() {
 
 #[component("test-component")]
 struct Test1 {}
-
 impl Component for Test1Component {}
+
+#[wasm_bindgen_test]
+fn test_nothing_component() {
+    common::setup_test();
+
+    let content = html! {{
+        <nothing-component></nothing-component>
+    }};
+
+    inner_html("#test-div", &content).unwrap();
+    assert!(true); // just to check if it compiles
+}
+
+#[component("nothing-component")]
+struct Nothing {}
+impl Component for NothingComponent {}
