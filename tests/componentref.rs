@@ -9,7 +9,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 thread_local! {
-    static TEST2_COMPONENTS: RefCell<HashMap<String, Test2Handle>> =
+    static TEST2_COMPONENTS: RefCell<HashMap<String, Rc<RefCell<Test2ActualContainer>>>> =
         RefCell::new(HashMap::new());
 }
 
@@ -46,7 +46,7 @@ fn create_test2() {
     Test2ActualContainer::connect(handle);
 }
 
-fn register_component(component: Test2Handle) {
+fn register_component(component: Rc<RefCell<Test2ActualContainer>>) {
     let id = component.borrow().id.clone();
 
     TEST2_COMPONENTS.with(|components| {
@@ -64,19 +64,12 @@ struct Test2ActualContainer {
     attribute_values: Rc<RefCell<Test2>>,
 }
 
-type Test2Handle = Rc<RefCell<Test2ActualContainer>>;
-
 impl Test2ActualContainer {
-    fn connect(handle: Test2Handle) {}
     fn attributes_update(&self, name: &str, old_value: &str, new_value: &str) {}
-    fn set_test_attribute() {}
-    fn get_test_attribute(&self) -> String {
-        String::from("test ...")
-    }
 }
 
 struct Test2Component {
-    handle: Test2Handle,
+    handle: Rc<RefCell<Test2ActualContainer>>,
 }
 
 impl Test2Component {
