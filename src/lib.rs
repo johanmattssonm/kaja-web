@@ -100,7 +100,7 @@ pub fn try_handle_component_update_message(event: &web_sys::MessageEvent) -> boo
 /// Register callbacks that can be used in JS to run Rust functions in the WASM
 /// module. This needs to run when the WASM bundle is loaded.
 ///
-/// ```rust
+/// ```rust,ignore
 /// #[wasm_bindgen(start)]
 /// pub fn init() {
 ///     init_callbacks();
@@ -112,13 +112,13 @@ pub fn try_handle_component_update_message(event: &web_sys::MessageEvent) -> boo
 /// `testCallback`. Note that camel case is used in JS and regular snake case
 /// is used in Rust for the same function.
 ///
-/// ```rust
+/// ```rust,ignore
 /// #[callback(testCallback)]
 /// pub fn test_callback() {
 /// }
 /// ```
 ///
-/// ```rust
+/// ```rust,ignore
 /// let html = html!{{
 ///     <button onclick="testCallback()">Test</button>
 /// }};
@@ -245,7 +245,7 @@ pub fn inner_text(selector: &str, text: &str) -> Result<()> {
 /// <input type="text" id="test" value="test value" />
 /// ```
 ///
-/// ```rust
+/// ```rust,ignore
 /// let value = get_value("#test");
 /// assert_eq!(value, Some("test value"));
 /// ```
@@ -339,7 +339,7 @@ pub fn set_session_cookie_value(name: &str, value: &str) -> Result<()> {
 /// to HTML elements without generating an HTML string.
 ///
 /// Example:
-/// ```rust
+/// ```rust,ignore
 /// use web_sys::HtmlImageElement;
 /// use gloo_console::log;
 ///

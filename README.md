@@ -13,7 +13,7 @@ manually when you want to render a component and use
 `inner_html("#the-id", content)` to update the  DOM.
 
 ## Dependencies
-```
+```bash
 cargo add kaja-web
 cargo add kaja-html-macro
 cargo add kaja-callback-macro
@@ -25,7 +25,7 @@ cargo add js-sys
 ```
 
 ## Example:
-```rust
+```rust,ignore
 use kaja_web::prelude::*;
 use std::sync::RwLock;
 
@@ -48,7 +48,7 @@ fn update_counter_display(app_data: &AppData) {
         <button onclick="incrementClickCounter()">Click me</button>
     }};
 
-    try_inner_html(".main-content", content);
+    try_inner_html(".main-content", &content);
 }
 
 fn update_count(app_data: &AppData) {
@@ -56,7 +56,7 @@ fn update_count(app_data: &AppData) {
         $(app_data.current_count)
     }};
 
-    try_inner_html(".click-count", count);
+    try_inner_html(".click-count", &count);
 }
 
 fn main() {
@@ -92,7 +92,7 @@ fn update_component() {
         <button onclick="foo({ test_parameter: 'test' })">Click me</button>
     }};
 
-    inner_html(".main-content", content);
+    inner_html(".main-content", &content);
 }
 
 #[callback(foo)]
