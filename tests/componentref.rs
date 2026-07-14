@@ -1,8 +1,6 @@
 #[path = "common.rs"]
 mod common;
 
-use std::borrow;
-
 use kaja_web::prelude::*;
 use kaja_web_component::component;
 use wasm_bindgen_test::*;
@@ -19,13 +17,19 @@ fn test_new_component() {
     inner_html("#test-div", &content).unwrap();
 
     let component = Test2Component::get_component(id).expect("Component not found in global store");
-    let attr = component.get_attribute("number").unwrap();
+    let attr = component.get_attribute_string("number").unwrap();
     assert_eq!(attr, "42");
+
+    let typed_attr: i32 = component.get_attribute("number").unwrap();
+    assert_eq!(typed_attr, 42);
 
     {
         component.set_attribute("number", "100");
-        let attr = component.get_attribute("number").unwrap();
+        let attr = component.get_attribute_string("number").unwrap();
         assert_eq!(attr, "100");
+
+        let typed_attr = component.get_attribute::<i32>("number").unwrap();
+        assert_eq!(typed_attr, 100);
 
         let test2_inner = component.get_attributes();
         let test2 = test2_inner.borrow();
@@ -35,8 +39,11 @@ fn test_new_component() {
     component.set_attribute("number", "SOMETHING_NOT_i32"); // NAN
 
     {
-        let attr = component.get_attribute("number").unwrap();
+        let attr = component.get_attribute_string("number").unwrap();
         assert_eq!(attr, "100");
+
+        let typed_attr: i32 = component.get_attribute("number").unwrap();
+        assert_eq!(typed_attr, 100);
 
         let test2_inner = component.get_attributes();
         let test2 = test2_inner.borrow();
