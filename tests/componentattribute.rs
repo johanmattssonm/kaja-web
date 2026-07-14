@@ -6,7 +6,7 @@ use kaja_web_component::component;
 use wasm_bindgen_test::*;
 
 #[wasm_bindgen_test]
-fn test_new_component() {
+fn test_attributes_in_component() {
     common::setup_test();
 
     let id = "test-id-for-component";
@@ -44,6 +44,15 @@ fn test_new_component() {
         let test2 = test2_inner.borrow();
         log!("test2 number:", test2.number);
     }
+
+    {
+        let element = get_element_by_id(id);
+        assert!(element.is_some());
+
+        let element = element.unwrap();
+        let err = element.set_attribute("number", "SOMETHING_NOT_i32_in_JS");
+        assert!(err.is_err());
+    }
 }
 
 #[component("test-get-set-id")]
@@ -55,7 +64,6 @@ struct Test2 {
 impl Component for Test2Component {
     fn connected(&self) {
         log!("Connected:", self.get_id());
-        log!("Set number");
     }
 
     fn disconnected(&self) {
