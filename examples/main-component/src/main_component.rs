@@ -11,7 +11,7 @@ struct Other {
     the_number: i32,
 }
 
-impl Component for Main {
+impl Component for MainComponent {
     fn connected(id: &str) {
         log!("Main connected:", id);
         start_background_task(&id);

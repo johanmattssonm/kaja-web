@@ -11,7 +11,11 @@ fn test_attributes_in_component() {
 
     let id = "test-id-for-component";
     let content = html! {{
-        <test-get-set-id id="$id" number="1" test_attribute="initial-value-for-attribute"></test-get-set-id>
+        <test-get-set-id
+            id="$id"
+            number="1"
+            test_attribute="initial-value-for-attribute">
+        </test-get-set-id>
     }};
 
     inner_html("#test-div", &content).unwrap();
@@ -45,19 +49,20 @@ fn test_attributes_in_component() {
         log!("test2 number:", test2.number);
     }
 
-    {
-        let element = get_element_by_id(id);
-        assert!(element.is_some());
+    let element = get_element_by_id(id);
+    assert!(element.is_some());
 
-        let element = element.unwrap();
-        let err = element.set_attribute("number", "SOMETHING_NOT_i32_in_JS");
-        assert!(err.is_err());
-    }
+    let element = element.unwrap();
+    let err = element.set_attribute("number", "SOMETHING_NOT_i32_in_JS");
+    assert!(err.is_err());
 }
 
 #[component("test-get-set-id")]
 struct Test2 {
+    #[attribute]
     test: bool,
+
+    #[attribute]
     number: i32,
 }
 
