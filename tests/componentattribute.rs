@@ -35,7 +35,7 @@ fn test_attributes_in_component() {
     let typed_attr = component.get_attribute::<i32>("number").unwrap();
     assert_eq!(typed_attr, 100);
 
-    let _ = component.set_attribute("number", "SOMETHING_NOT_i32"); // NAN
+    let _ = component.set_attribute("number", "SOMETHING_NOT_i32"); // NAN, fails and prints error
 
     let attr = component.get_attribute_string("number").unwrap();
     assert_eq!(attr, "100");
@@ -55,6 +55,23 @@ fn test_attributes_in_component() {
     let element = element.unwrap();
     let err = element.set_attribute("number", "SOMETHING_NOT_i32_in_JS");
     assert!(err.is_err());
+
+    let test = component.get_attribute_string("test").unwrap();
+    assert_eq!(test, "false");
+
+    let test_typed = component.get_attribute::<bool>("test").unwrap();
+    assert_eq!(test_typed, false);
+
+    // expect None because test is bool
+    let test_typed_fail = component.get_attribute::<u32>("test");
+    assert!(test_typed_fail.is_none());
+
+    let number_typed = component.get_attribute::<u32>("number").unwrap();
+    assert_eq!(number_typed, 100);
+
+    // expect None because number is i32
+    let number_typed_fail = component.get_attribute::<bool>("number");
+    assert!(number_typed_fail.is_none());
 }
 
 #[component("test-get-set-id")]
