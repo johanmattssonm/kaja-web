@@ -72,20 +72,33 @@ fn test_attributes_in_component() {
     // expect None because number is i32
     let number_typed_fail = component.get_attribute::<bool>("number");
     assert!(number_typed_fail.is_none());
+
+    {
+        let test2_internal = component.borrow();
+        assert_eq!(test2_internal.internal, 7);
+    }
+
+    {
+        let mut test2_internal = component.borrow_mut();
+        test2_internal.internal = 2;
+    }
 }
 
 #[component("test-get-set-id")]
 struct Test2 {
     #[attribute]
     test: bool,
-
     #[attribute]
     number: i32,
+    internal: u32, // not exposed to the DOM
 }
 
 impl Component for Test2Component {
     fn connected(&self) {
         log!("Connected:", self.get_id());
+
+        let mut internal = self.borrow_mut();
+        internal.internal = 7;
     }
 
     fn disconnected(&self) {
