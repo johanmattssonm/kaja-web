@@ -1,104 +1,72 @@
 use kaja_web::prelude::*;
 
-#[derive(Clone)]
 #[component("main-component")]
 struct Main {
+    #[attribute]
     test: bool,
 }
 
-#[component("other-component")]
-struct Other {
-    the_number: i32,
-}
-
 impl Component for MainComponent {
-    fn connected(id: &str) {
-        log!("Main connected:", id);
-        start_background_task(&id);
+    fn connected(&self) {
+        log!("Connected:", self.get_id());
     }
 
-    fn update(id: &str) {
-        log!("Main update:", id);
+    fn disconnected(&self) {
+        log!("Disconnected:", self.get_id());
+    }
 
-        let Some(element) = get_element_by_id(id) else {
-            error!("Main element not found:", id);
-            return;
-        };
-
-        let Some(handle) = Self::get_component(id) else {
-            error!("Main component not found:", id);
-            return;
-        };
-
-        let mut component = handle.borrow_mut();
-        component.test = !component.test;
-
-        component.render(&element);
+    fn attribute_changed(&self, name: &str, _old_value: &str, _new_value: &str) {
+        if name == "test" {
+            self.render();
+        }
     }
 }
 
-impl Component for Other {
-    fn connected(id: &str) {
-        log!("Other connected:", id);
-
-        let Some(handle) = Self::get_component(&id) else {
-            error!("Other component not found:", id);
-            return;
-        };
-
-        let mut component = handle.borrow_mut();
-        component.the_number += 1;
-        component.render(id);
-    }
-
-    fn update(id: &str) {
-        log!("Other update:", id);
-    }
-}
-
-impl Other {
-    fn render(&self, id: &str) {
-        let Some(element) = get_element_by_id(id) else {
-            error!("Other element not found:", id);
-            return;
-        };
+impl MainComponent {
+    fn render(&self) {
+        let test: bool = self.get_attribute("test").unwrap_or_default();
 
         let content = html! {{
-            <div>The number: $(self.the_number)</div>
+            <p>Test: $test</p>
         }};
 
-        log!("Render Other");
-        element.set_inner_html(&content);
+        let id = self.get_id();
+
+        if let Some(element) = get_element_by_id(&id) {
+            element.set_inner_html(content.as_str());
+        } else {
+            error!("Element not found for component id:", id);
+        }
     }
 }
 
-impl Main {
-    fn render(&self, element: &HtmlElement) {
-        let content = html! {{
-            <div>Known: $(self.test)</div>
-            <other-component></other-component>
-        }};
-
-        log!("Render Main", self.test);
-        element.set_inner_html(&content);
-    }
-}
-
-fn start_background_task(id: &str) {
-    let component_id = id.to_string();
-
-    log!("Starting background thread:", id);
+pub(crate) fn start_background_task() {
+    log!("Starting background task");
 
     wasm_bindgen_futures::spawn_local(async move {
         loop {
-            let component_exists = Main::component_exists(&component_id);
+            let elements = get_elements("main-component");
 
-            if !component_exists {
-                log!("Stopping background thread:", component_id);
-                break;
+            for element in elements {
+                let id = element.id();
+
+                if id.is_empty() {
+                    continue;
+                }
+
+                if let Some(element) = get_element_by_id(&id) {
+                    let test = element
+                        .get_attribute("test")
+                        .unwrap_or_default()
+                        .parse::<bool>()
+                        .unwrap_or_default();
+                    let test = !test;
+                    let _ = element.set_attribute("test", test.to_string().as_str());
+                } else {
+                    error!("Element not found for component id:", id);
+                }
             }
 
-            Main::update(component_id.as_str());
             gloo_timers::future::TimeoutFuture::new(1000).await;
         }
     });
