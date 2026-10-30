@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2.122"
-kaja-web = { version = "1.0.2", path = "../.." }
+kaja-web = { version = "1.0.3", path = "../.." }
 kaja-web-component = { version = "1.0.0", path = "../../../kaja-web-component" }
 js-sys = "0.3"
 web-sys = { version = "0.3.99", features = ["Element", "HtmlElement", "NodeList", "CustomElementRegistry", "ElementDefinitionOptions"] }

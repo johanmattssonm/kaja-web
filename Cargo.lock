@@ -442,7 +442,7 @@ dependencies = [
 
 [[package]]
 name = "kaja-web"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "gloo",
  "gloo-console",
