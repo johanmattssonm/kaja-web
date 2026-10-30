@@ -1,0 +1,12 @@
+{
+  "name": "main-component",
+  "version": "1.0.0",
+  "type": "module",
+  "files": [
+    "pkg"
+  ],
+  "exports": {
+    ".": "./pkg/main.js",
+    "./*": "./pkg/*"
+  }
+}

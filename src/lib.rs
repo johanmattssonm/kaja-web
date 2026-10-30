@@ -128,9 +128,7 @@ pub fn init_callbacks() {
         (init.0)();
     }
 
-    log!("Init component fn kaja-web");
     for init in inventory::iter::<InitComponentFn> {
-        log!("Run init component fn");
         (init.0)();
     }
 }

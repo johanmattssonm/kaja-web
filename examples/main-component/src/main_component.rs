@@ -41,8 +41,6 @@ impl MainComponent {
 }
 
 pub(crate) fn start_background_task() {
-    log!("Starting background task");
-
     wasm_bindgen_futures::spawn_local(async move {
         loop {
             let elements = get_elements("main-component");
