@@ -64,39 +64,6 @@ pub fn dispatch_component_update(component: &str, id: &str) -> bool {
     false
 }
 
-pub fn try_handle_component_update_message(event: &web_sys::MessageEvent) -> bool {
-    let Ok(message) = event.data().dyn_into::<js_sys::Array>() else {
-        return false;
-    };
-
-    if message.length() != 3 {
-        return false;
-    }
-
-    if message.get(0).as_string().as_deref() != Some("__kaja_component_update__") {
-        return false;
-    }
-
-    let Some(component) = message.get(1).as_string() else {
-        error!("Invalid component update message: missing component name.");
-        return true;
-    };
-
-    let Some(id) = message.get(2).as_string() else {
-        error!(
-            "Invalid component update message: missing component id.",
-            component
-        );
-        return true;
-    };
-
-    if !dispatch_component_update(&component, &id) {
-        error!("Component update handler not found.", component, id);
-    }
-
-    true
-}
-
 /// Register callbacks that can be used in JS to run Rust functions in the WASM
 /// module. This needs to run when the WASM bundle is loaded.
 ///
@@ -379,48 +346,7 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
     None
 }
 
-/// Generated component handle API. See kaja-web-component.
-pub trait ComponentHandle {
-    type State;
-
-    fn set_attribute<T>(&self, name: &str, value: T) -> Result<()>
-    where
-        T: ToString;
-
-    fn set_attribute_string(&self, name: &str, value: &str) -> Result<()>;
-
-    fn get_attribute_string(&self, name: &str) -> Option<String>;
-
-    fn get_attribute<T>(&self, name: &str) -> Option<T>
-    where
-        T: std::str::FromStr;
-
-    fn get_attributes(&self) -> std::rc::Rc<std::cell::RefCell<Self::State>>;
-
-    fn borrow(&self) -> std::cell::Ref<'_, Self::State>;
-
-    fn borrow_mut(&self) -> std::cell::RefMut<'_, Self::State>;
-
-    fn with_mut<F>(&self, f: F)
-    where
-        F: FnOnce(&mut Self::State);
-
-    fn with<F>(&self, f: F)
-    where
-        F: FnOnce(&Self::State);
-
-    fn get_id(&self) -> String;
-}
-
-/// HTML Component. See kaja-web-component.
-pub trait Component: Default + ComponentHandle {
-    fn connected(&self) {}
-    fn disconnected(&self) {}
-    fn attribute_changed(&self, name: &str, _old_value: &str, _new_value: &str) {
-        log!("Attribute changed but no update handler for ", name);
-    }
-}
-
+/// Get HTML element by ID
 pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
     let window = web_sys::window().ok_or(Error).ok()?;
     let document = window.document().ok_or(Error).ok()?;
@@ -429,6 +355,7 @@ pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
     Some(html_element)
 }
 
+/// Drop CSS class from CSS class list
 pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
     use js_sys::Array;
     use wasm_bindgen::JsValue;
@@ -442,6 +369,7 @@ pub fn remove_css_class(element: &HtmlElement, css_class: &str) {
     let _ = element.class_list().remove(&token);
 }
 
+/// Add CSS class to CSS class list
 pub fn add_css_class(element: &HtmlElement, css_class: &str) {
     use js_sys::Array;
     use wasm_bindgen::JsValue;
