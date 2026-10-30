@@ -47,23 +47,6 @@ pub struct CallbackRegistration {
 
 inventory::collect!(CallbackRegistration);
 
-pub trait ComponentStorage: Default + Sized {
-    fn storage() -> &'static std::thread::LocalKey<
-        std::cell::RefCell<std::collections::HashMap<String, SharedComponent<Self>>>,
-    >;
-}
-
-pub fn dispatch_component_update(component: &str, id: &str) -> bool {
-    for update in inventory::iter::<UpdateComponentFn> {
-        if update.component == component {
-            (update.dispatch)(id);
-            return true;
-        }
-    }
-
-    false
-}
-
 /// Register callbacks that can be used in JS to run Rust functions in the WASM
 /// module. This needs to run when the WASM bundle is loaded.
 ///
