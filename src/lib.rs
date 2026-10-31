@@ -329,6 +329,48 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
     None
 }
 
+/// Generated component handle API. See kaja-web-component.
+pub trait ComponentHandle {
+    type State;
+
+    fn set_attribute<T>(&self, name: &str, value: T) -> Result<()>
+    where
+        T: ToString;
+
+    fn set_attribute_string(&self, name: &str, value: &str) -> Result<()>;
+
+    fn get_attribute_string(&self, name: &str) -> Option<String>;
+
+    fn get_attribute<T>(&self, name: &str) -> Option<T>
+    where
+        T: std::str::FromStr;
+
+    fn get_attributes(&self) -> std::rc::Rc<std::cell::RefCell<Self::State>>;
+
+    fn borrow(&self) -> std::cell::Ref<'_, Self::State>;
+
+    fn borrow_mut(&self) -> std::cell::RefMut<'_, Self::State>;
+
+    fn with_mut<F>(&self, f: F)
+    where
+        F: FnOnce(&mut Self::State);
+
+    fn with<F>(&self, f: F)
+    where
+        F: FnOnce(&Self::State);
+
+    fn get_id(&self) -> String;
+}
+
+/// HTML Component. See kaja-web-component.
+pub trait Component: Default + ComponentHandle {
+    fn connected(&self) {}
+    fn disconnected(&self) {}
+    fn attribute_changed(&self, name: &str, _old_value: &str, _new_value: &str) {
+        log!("Attribute changed but no update handler for ", name);
+    }
+}
+
 /// Get HTML element by ID
 pub fn get_element_by_id(id: &str) -> Option<HtmlElement> {
     let window = web_sys::window().ok_or(Error).ok()?;

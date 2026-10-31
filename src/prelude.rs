@@ -1,6 +1,6 @@
 pub use crate::{
-    CallbackRegistration, Error, InitComponentFn, InitFn, Result, SharedComponent,
-    UpdateComponentFn, add_css_class, get_callback, get_cookie_value, get_element,
+    CallbackRegistration, Component, ComponentHandle, Error, InitComponentFn, InitFn, Result,
+    SharedComponent, UpdateComponentFn, add_css_class, get_callback, get_cookie_value, get_element,
     get_element_by_id, get_elements, get_value, init_callbacks, inner_html, inner_text,
     remove_css_class, try_get_value, try_inner_html, try_inner_text,
 };
