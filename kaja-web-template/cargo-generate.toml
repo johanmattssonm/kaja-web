@@ -6,3 +6,8 @@ exclude = ["src/lib.rs"]
 type = "string"
 prompt = "Project description"
 default = "A Kaja Web application"
+
+[placeholders.license]
+type = "string"
+prompt = "Project license"
+default = "MIT"

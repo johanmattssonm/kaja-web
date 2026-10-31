@@ -17,6 +17,6 @@ impl Component for HelloCardComponent {
 
 #[wasm_bindgen(start)]
 pub fn main() {
-    log!("Kaja Web template started.");
+    log!("Kaja Web started.");
     init_callbacks();
 }
