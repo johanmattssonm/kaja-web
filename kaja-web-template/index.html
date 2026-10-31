@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{project-name}}</title>
-</head>
-<body>
+
     <script type="module">
         import init from "./pkg/{{crate_name}}.js";
         await init();
     </script>
+</head>
+<body>
+    <hello-card></hello-card>
 </body>
 </html>
