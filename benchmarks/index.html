@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Rust/WASM component speed benchmarks</title>
+        <style>
+            body {
+                font: 16px/1.5 system-ui, sans-serif;
+                margin: 2rem auto;
+                max-width: 900px;
+                padding: 0 1rem;
+            }
+
+            form {
+                align-items: end;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+
+            label {
+                display: grid;
+                gap: 0.25rem;
+            }
+
+            button,
+            input,
+            select {
+                font: inherit;
+                padding: 0.4rem 0.65rem;
+            }
+
+            table {
+                border-collapse: collapse;
+                margin: 1rem 0;
+                width: 100%;
+            }
+
+            th,
+            td {
+                border-bottom: 1px solid #999;
+                padding: 0.5rem;
+                text-align: left;
+            }
+
+            #benchmark-frame {
+                border: 1px solid #999;
+                height: 100px;
+                margin-top: 1rem;
+                width: 100%;
+            }
+
+            #status {
+                min-height: 1.5em;
+            }
+        </style>
+        <script type="module" src="./runner.js"></script>
+    </head>
+    <body>
+        <h1>Rust/WASM component speed benchmarks</h1>
+        <p>
+            Compares the same counter component in Kaja, Yew, Leptos, and Dioxus.
+            Run this page in the same browser and machine for meaningful comparisons.
+        </p>
+
+        <form id="benchmark-form">
+            <label>
+                Framework
+                <select id="framework">
+                    <option value="all">All frameworks</option>
+                    <option value="kaja">Kaja</option>
+                    <option value="yew">Yew</option>
+                    <option value="leptos">Leptos</option>
+                    <option value="dioxus">Dioxus</option>
+                </select>
+            </label>
+            <label>
+                Clicks per batch
+                <input id="click-count" type="number" min="1" max="10000" value="250" required />
+            </label>
+            <button id="run-benchmark" type="submit">Run benchmark</button>
+        </form>
+
+        <p id="status" role="status" aria-live="polite">Build the packages, then run the benchmark.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Framework</th>
+                    <th>Startup median (ms)</th>
+                    <th>Click batch median (ms)</th>
+                    <th>Median per click (µs)</th>
+                </tr>
+            </thead>
+            <tbody id="results"></tbody>
+        </table>
+        <iframe id="benchmark-frame" title="Component under benchmark"></iframe>
+    </body>
+</html>

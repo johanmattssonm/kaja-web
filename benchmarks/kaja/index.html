@@ -6,7 +6,9 @@
         <title>Kaja counter benchmark</title>
         <script type="module">
             import init from "./pkg/kaja_component_benchmark.js";
+            import { signalBenchmarkReady } from "../adapter.js";
             await init();
+            await signalBenchmarkReady();
         </script>
     </head>
     <body>

@@ -5,8 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Leptos counter benchmark</title>
         <script type="module">
+            import { signalBenchmarkReady } from "../adapter.js";
             import init from "./pkg/leptos_component_benchmark.js";
             await init();
+            await signalBenchmarkReady();
         </script>
     </head>
     <body></body>
