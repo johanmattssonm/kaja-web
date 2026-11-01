@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = ["kaja", "yew", "leptos", "dioxus"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
