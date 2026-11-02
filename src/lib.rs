@@ -6,7 +6,8 @@
 use gloo_console::{error, log};
 use wasm_bindgen::JsCast;
 use web_sys::{
-    Element, HtmlDocument, HtmlElement, HtmlInputElement, HtmlTextAreaElement, NodeList,
+    Element, HtmlDocument, HtmlElement, HtmlInputElement, HtmlSelectElement, HtmlTextAreaElement,
+    NodeList,
 };
 
 pub type SharedComponent<T> = std::rc::Rc<std::cell::RefCell<T>>;
@@ -190,7 +191,7 @@ pub fn inner_text(selector: &str, text: &str) -> Result<()> {
     Ok(())
 }
 
-/// Gets the value from an `<input>` or `<textarea>` matching `selector`.
+/// Gets the value from an `<input>`, `<textarea>`, or `<select>` matching `selector`.
 /// ```html
 /// <input type="text" id="test" value="test value" />
 /// ```
@@ -201,7 +202,11 @@ pub fn get_value(selector: &str) -> Option<String> {
         return Some(input.value());
     }
 
-    let element: HtmlTextAreaElement = element.dyn_into().ok()?;
+    if let Some(textarea) = element.dyn_ref::<HtmlTextAreaElement>() {
+        return Some(textarea.value());
+    }
+
+    let element: HtmlSelectElement = element.dyn_into().ok()?;
     Some(element.value())
 }
 

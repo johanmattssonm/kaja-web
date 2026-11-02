@@ -18,6 +18,17 @@ fn test_get_value_from_textarea() {
 }
 
 #[wasm_bindgen_test]
+fn test_get_value_from_select() {
+    inner_html(
+        "body",
+        r#"<select id="country"><option value="se">Sweden</option><option value="no" selected>Norway</option></select>"#,
+    )
+    .unwrap();
+
+    assert_eq!(get_value("#country"), Some("no".to_owned()));
+}
+
+#[wasm_bindgen_test]
 fn test_cookie() {
     set_cookie_value("test-cookie-value", "some-value").unwrap();
 
