@@ -329,43 +329,82 @@ pub fn get_callback(name: &str) -> Option<js_sys::Function> {
     None
 }
 
-/// Generated component handle API. See kaja-web-component.
+/// Handle for the state and DOM element of a generated web component.
+///
+/// ```rust,ignore
+/// let value: Option<bool> = component.get_attribute("enabled");
+/// component.set_attribute("enabled", true)?;
+/// component.with(|state| log!("State:", state));
+/// # Ok::<(), kaja_web::Error>(())
+/// ```
 pub trait ComponentHandle {
+    /// The Rust component struct stored for each instance.
     type State;
 
+    /// Validates and sets an observed attribute on the DOM element.
     fn set_attribute<T>(&self, name: &str, value: T) -> Result<()>
     where
         T: ToString;
 
+    /// Validates and sets an observed attribute from a string value.
     fn set_attribute_string(&self, name: &str, value: &str) -> Result<()>;
 
+    /// Returns an attribute value as a string.
     fn get_attribute_string(&self, name: &str) -> Option<String>;
 
+    /// Returns an attribute value parsed into the requested type.
     fn get_attribute<T>(&self, name: &str) -> Option<T>
     where
         T: std::str::FromStr;
 
+    /// Returns shared access to the component struct.
     fn get_attributes(&self) -> std::rc::Rc<std::cell::RefCell<Self::State>>;
 
+    /// Borrows the component struct immutably.
     fn borrow(&self) -> std::cell::Ref<'_, Self::State>;
 
+    /// Borrows the component struct mutably.
     fn borrow_mut(&self) -> std::cell::RefMut<'_, Self::State>;
 
+    /// Applies a function to the component struct mutably.
     fn with_mut<F>(&self, f: F)
     where
         F: FnOnce(&mut Self::State);
 
+    /// Applies a function to the component struct immutably.
     fn with<F>(&self, f: F)
     where
         F: FnOnce(&Self::State);
 
+    /// Returns the DOM ID of the component instance.
     fn get_id(&self) -> String;
 }
 
-/// HTML Component. See kaja-web-component.
+/// Lifecycle hooks for a custom HTML element created with `#[component]`.
+///
+/// ```rust,ignore
+/// impl Component for MainComponent {
+///     fn connected(&self) {
+///         log!("Connected:", self.get_id());
+///     }
+///
+///     fn disconnected(&self) {
+///         log!("Disconnected:", self.get_id());
+///     }
+///
+///     fn attribute_changed(&self, name: &str, old: &str, new: &str) {
+///         log!("Changed:", name, old, new);
+///     }
+/// }
+/// ```
 pub trait Component: Default + ComponentHandle {
+    /// Called when the element is added to the document.
     fn connected(&self) {}
+
+    /// Called when the element is removed from the document.
     fn disconnected(&self) {}
+
+    /// Called when an observed component attribute changes.
     fn attribute_changed(&self, name: &str, _old_value: &str, _new_value: &str) {
         log!("Attribute changed but no update handler for ", name);
     }

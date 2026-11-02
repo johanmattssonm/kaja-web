@@ -26,6 +26,17 @@ Open <http://localhost:8000/> in a browser and select **Run benchmark**. The run
 
 The startup measurement includes page navigation and WebAssembly download/initialization, so later runs generally benefit from the browser cache. Click-batch time measures event handling through the DOM update; it does not measure paint time. Results depend on the browser, machine load, and browser cache state. Compare frameworks in the same browser session and treat small differences cautiously.
 
+### Recorded result
+
+One recorded run using the default 250-click batch:
+
+| Framework | Startup median (ms) | Click batch median (ms) | Median per click (µs) |
+| --- | ---: | ---: | ---: |
+| Kaja | 31.10 | 2.20 | 8.80 |
+| Yew | 33.40 | 16.60 | 66.40 |
+| Leptos | 33.40 | 16.50 | 66.00 |
+| Dioxus | 50.30 | 16.30 | 65.20 |
+
 ## Adding or changing an adapter
 
 The shared runner in `runner.js` relies on a small DOM contract: each app renders a button with `id="counter"`, initially showing `Clicks: 0`, and each click updates it to `Clicks: N`. After its WASM module initializes, the page calls `signalBenchmarkReady()` from `adapter.js`; that helper waits for the button to render and notifies the runner. Keep the rendered markup and update behavior equivalent across adapters so the results stay comparable.
