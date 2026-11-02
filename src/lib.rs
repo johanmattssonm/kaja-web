@@ -5,7 +5,9 @@
 
 use gloo_console::{error, log};
 use wasm_bindgen::JsCast;
-use web_sys::{Element, HtmlDocument, HtmlElement, HtmlInputElement, NodeList};
+use web_sys::{
+    Element, HtmlDocument, HtmlElement, HtmlInputElement, HtmlTextAreaElement, NodeList,
+};
 
 pub type SharedComponent<T> = std::rc::Rc<std::cell::RefCell<T>>;
 
@@ -188,23 +190,19 @@ pub fn inner_text(selector: &str, text: &str) -> Result<()> {
     Ok(())
 }
 
-/// Get value from an input tag.
+/// Gets the value from an `<input>` or `<textarea>` matching `selector`.
 /// ```html
 /// <input type="text" id="test" value="test value" />
-/// ```
-///
-/// ```rust,ignore
-/// let value = get_value("#test");
-/// assert_eq!(value, Some("test value"));
 /// ```
 pub fn get_value(selector: &str) -> Option<String> {
     let element = get_element(selector)?;
 
-    if let Ok(input) = element.dyn_into::<HtmlInputElement>() {
+    if let Some(input) = element.dyn_ref::<HtmlInputElement>() {
         return Some(input.value());
     }
 
-    None
+    let element: HtmlTextAreaElement = element.dyn_into().ok()?;
+    Some(element.value())
 }
 
 /// Get value from input tag, or return an empty string if no value is found.

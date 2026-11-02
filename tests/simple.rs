@@ -1,4 +1,4 @@
-use kaja_web::{get_cookie_value, set_cookie_value};
+use kaja_web::{get_cookie_value, get_value, inner_html, set_cookie_value};
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -8,6 +8,13 @@ fn test_dom() {
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
     assert!(document.body().is_some());
+}
+
+#[wasm_bindgen_test]
+fn test_get_value_from_textarea() {
+    inner_html("body", r#"<textarea id="message">Hello</textarea>"#).unwrap();
+
+    assert_eq!(get_value("#message"), Some("Hello".to_owned()));
 }
 
 #[wasm_bindgen_test]
