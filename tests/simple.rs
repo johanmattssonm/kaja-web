@@ -1,3 +1,6 @@
+#[path = "common.rs"]
+mod common;
+
 use kaja_web::{get_cookie_value, get_value, inner_html, set_cookie_value};
 use wasm_bindgen_test::*;
 
@@ -12,15 +15,17 @@ fn test_dom() {
 
 #[wasm_bindgen_test]
 fn test_get_value_from_textarea() {
-    inner_html("body", r#"<textarea id="message">Hello</textarea>"#).unwrap();
+    common::setup_test();
+    inner_html("#test-div", r#"<textarea id="message">Hello</textarea>"#).unwrap();
 
     assert_eq!(get_value("#message"), Some("Hello".to_owned()));
 }
 
 #[wasm_bindgen_test]
 fn test_get_value_from_select() {
+    common::setup_test();
     inner_html(
-        "body",
+        "#test-div",
         r#"<select id="country"><option value="se">Sweden</option><option value="no" selected>Norway</option></select>"#,
     )
     .unwrap();
