@@ -1,12 +1,14 @@
 pub use crate::{
     CallbackRegistration, Component, ComponentHandle, Error, InitComponentFn, InitFn, Result,
-    SharedComponent, UpdateComponentFn, add_css_class, get_callback, get_cookie_value, get_element,
-    get_element_by_id, get_elements, get_value, init_callbacks, inner_html, inner_text,
-    remove_css_class, try_get_value, try_inner_html, try_inner_text,
+    SharedComponent, UpdateComponentFn, add_css_class, get_attribute, get_callback,
+    get_cookie_value, get_element, get_element_by_id, get_elements, get_value, init_callbacks,
+    inner_html, inner_text, remove_css_class, try_get_value, try_inner_html, try_inner_text,
 };
 
 pub use gloo::console::error;
 pub use gloo::console::log;
+pub use serde;
+pub use serde_json;
 pub use serde_wasm_bindgen;
 
 pub use std::cell::RefCell;

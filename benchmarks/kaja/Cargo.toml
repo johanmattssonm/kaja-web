@@ -1,13 +1,13 @@
 [package]
 name = "kaja-component-benchmark"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-kaja-web = "=1.0.3"
+kaja-web = "=1.1.0"
 wasm-bindgen = "0.2"
 gloo = "0.12"
 inventory = "0.3"

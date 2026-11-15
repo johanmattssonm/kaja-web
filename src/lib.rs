@@ -14,6 +14,9 @@ pub type SharedComponent<T> = std::rc::Rc<std::cell::RefCell<T>>;
 
 pub mod prelude;
 
+pub use serde;
+pub use serde_json;
+
 pub struct InitFn(pub fn());
 inventory::collect!(InitFn);
 
@@ -86,6 +89,14 @@ pub fn init_callbacks() {
     }
 }
 
+/// Get tag attribure from the selector. For example: `get_attribut("#someId", "test")`
+/// returns the test attribute from the element with id `someId`.
+pub fn get_attribute(selector: &str, attribut_name: &str) -> Option<String> {
+    let component = get_element(selector)?;
+    let attribute = component.get_attribute(attribut_name)?;
+    Some(attribute)
+}
+
 /// Queries the document for a single element matching the given selector.
 /// Returns `None` if no element is found. Returns first matching element if multiple are found.
 pub fn get_element(selector: &str) -> Option<HtmlElement> {
@@ -120,7 +131,7 @@ pub fn get_element(selector: &str) -> Option<HtmlElement> {
 }
 
 /// Returns all elements matching the given selector.
-/// For example, `get_elements(".test")` would return all elements with the class `test`.
+/// For example: `get_elements(".test")` would return all elements with the class `test`.
 pub fn get_elements(selector: &str) -> Vec<HtmlElement> {
     let window = web_sys::window();
 
@@ -358,7 +369,7 @@ pub trait ComponentHandle {
     /// Returns an attribute value parsed into the requested type.
     fn get_attribute<T>(&self, name: &str) -> Option<T>
     where
-        T: std::str::FromStr;
+        T: serde::de::DeserializeOwned;
 
     /// Returns shared access to the component struct.
     fn get_attributes(&self) -> std::rc::Rc<std::cell::RefCell<Self::State>>;

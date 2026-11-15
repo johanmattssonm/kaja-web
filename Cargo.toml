@@ -1,6 +1,6 @@
 [package]
 name = "kaja-web"
-version = "1.0.7"
+version = "1.1.0"
 edition = "2024"
 description = "Web framework for Rust targeting the WebAssembly"
 license = "MIT"
@@ -11,16 +11,16 @@ keywords = ["html", "web", "wasm", "webassembly", "frontend"]
 [dependencies]
 gloo = "0.12.0"
 gloo-console = "0.4.0"
-kaja-html-macro = "1.0.5"
+kaja-html-macro = "1.1.0"
 wasm-bindgen = "0.2.122"
 web-sys = { version = "0.3.99", features = ["Window", "Document", "HtmlDocument", "Element", "HtmlElement", "HtmlInputElement", "HtmlSelectElement", "HtmlTextAreaElement", "NodeList", "CssStyleDeclaration", "DomTokenList", "MessageEvent", "CustomElementRegistry", "ElementDefinitionOptions"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.5"
+serde_json = "1"
 inventory = "0.3.24"
 js-sys = "0.3"
 wasm-bindgen-futures = "0.4.72"
-kaja-callback-macro = { version = "1.0.2", path = "../kaja-callback-macro" }
-kaja-web-component = { version = "1.0.2", path = "../kaja-web-component" }
-
+kaja-callback-macro = { version = "1.1.0" }
+kaja-web-component = { version = "1.1.0" }
 [dev-dependencies]
 wasm-bindgen-test = "0.3.76"
